@@ -26,6 +26,16 @@ set.seed(10)
 auto <- tibble(ISLR::Auto) %>% 
   mutate(origin = factor(origin))
 
+#Data Exploration
+pdf('AutoCorrplot.pdf')
+auto %>% 
+  select(is.numeric) %>% 
+  cor(use="pairwise.complete.obs") %>% 
+  corrplot(type="lower", diag=FALSE, title = "Correlation Plot of Auto Predictors", mar=c(0,0,1,0))
+dev.off()
+```
+
+```{r}
 #splitting
 auto_split <- initial_split(auto, strata=mpg, prop=0.8)
 auto_train <- training(auto_split)
