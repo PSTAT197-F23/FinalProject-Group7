@@ -11,7 +11,7 @@ library(klaR)
 
 tidymodels_prefer()
 
-titanic_data <- read.csv('C:/Users/joon4/OneDrive/Desktop/data/titanic.csv')
+titanic_data <- read.csv('data/titanic.csv')
 
 titanic_data_1 <- titanic_data %>% 
   mutate(survived = factor(survived, levels = c("Yes", "No"))) %>% 
@@ -20,6 +20,7 @@ titanic_data_1 <- titanic_data %>%
 
 
 # Training and Testing Split
+set.seed(3435)
 tit_split <- initial_split(titanic_data_1, strata = survived, prop = 0.7)
 tit_train <- training(tit_split)
 tit_test <- testing(tit_split)
