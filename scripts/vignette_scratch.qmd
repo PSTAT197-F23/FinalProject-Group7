@@ -18,15 +18,15 @@ This section will go over the following:
 
 ### Intuition Behind Decision Trees
 
-Note that we will be explaining decision trees in the context of solving a classification problem. A decision tree is a rule-based algorithm that systematically divides the predictor space, i.e., the target variable using a set of rules to split the data points into homogeneous groups. Inner nodes and root nodes represent when a rule is applied to split a predictor (bearing in mind that a decision tree follows a binary tree structure). One branch of a node contains the data points which satisfy the node's rule, while the other branch contains the data points which broke the rule.
+Note that we will explain decision trees in the context of solving a classification problem. A decision tree is a rule-based algorithm that systematically divides the predictor space, i.e., the target variable, using a set of rules to split the data points into homogeneous groups. Inner and root nodes represent when a rule is applied to split a predictor (considering that a decision tree follows a binary tree structure). One branch of a node contains the data points that satisfy the node's rule, while the other contains the data points that break the rule.
 
-The goal is to split the predictor space, i.e., the target variable into increasingly homogeneous subgroups compared to its parent node. This process continues until either no more rules can be applied or there are no remaining data points. The nodes found at the bottom of the decision tree after the splitting process is over are called terminal or leaf nodes.
+The goal is to split the target variable into increasingly homogeneous subgroups compared to its parent node. This process continues until no more rules can be applied or no remaining data points. The nodes at the bottom of the decision tree after the splitting process is over are called terminal or leaf nodes.
 
-The decision tree's algorithm attempts to split the data into leaf nodes which contain only a single class. These nodes are referred to as pure nodes. Not all the leaf nodes of a decision tree will be completely pure, i.e., some leaf nodes will contain a mix of multiple classes. In this case, a classification is made based on the most common data point in a node.
+The decision tree's algorithm attempts to split the data into leaf nodes containing only a single class. These nodes are referred to as pure nodes. Not all the leaf nodes of a decision tree will be completely pure, i.e., some leaf nodes will contain a mix of multiple classes. In this case, a classification is made based on a node's most common data point.
 
 **How does a decision tree decide how to split?**
 
-Let us explain this using an example. Imagine we want to predict a students exam result based off whether they are taking online classes, student background, and working status. To establish the root node, the decision tree algorithm will iterate through splitting each predictor to determine which split results in the most homogenous or pure nodes, and it will evaluate this using some statistical criterion. After the root node is established, subsequent splits in the tree consider only the predictors that haven't been used for splitting in the current branch.
+Let us explain this using an example. Imagine we want to predict a student's exam result based on whether they are taking online classes, student background, and working status. To establish the root node, the decision tree algorithm will iterate through splitting each predictor to determine which split results in the most homogenous or pure nodes, and it will evaluate this using some statistical criterion. After the root node is established, subsequent splits in the tree consider only the predictors that haven't been used for splitting in the current branch.
 
 Variable selection criterion is done using one of the following approaches:
 
@@ -198,7 +198,7 @@ Note that there is some missing data in the `age` variable, using `step_impute_l
 vis_miss(train_set)
 ```
 
-\[ Explain use of interaction terms\]
+Below we create a heat plot to visualize the correlation between the predictors we will be using for our recipe.
 
 ```{r, echo=FALSE}
 train_set %>% 
@@ -207,6 +207,8 @@ train_set %>%
   corrplot(type = 'lower', diag = FALSE,
            method = 'color')
 ```
+
+As one can see, some of our predictors strongly correlate with the other(s). Thus, in order to capture potentially powerful predictive power through the interactions between highly correlated predictors and avoid inferential misinterpretation, we will include interaction terms in the formula we use to construct our model.
 
 The `step_dummy(all_nominal_predictors())` function simply turns all the nominal predictors into dummies.
 
@@ -281,7 +283,19 @@ predict(rf_final_fit, new_data)
 
 ### Accuracy Measures
 
-\[ Explain accuracy measures and model results \]
+Now, we check how our model performed on the testing data. We will use the following metrics:
+
+-   ROC-AUC (Receiver Operating Characteristic - Area Under Curve)
+
+-   Sensitivity (True Positive Rate)
+
+-   Specificity (True Negative Rate)
+
+-   Binary Accuracy
+
+ROC-AUC is a measure of the model's ability to distinguish between two classes and calculates the area under the curve of a plot made on a graph with Sensitivity on the Y-axis and Specificity on the X-axis. An AUC of 1 indicates a model that can perfectly distinguish between two classes. An AUC of 0.5, however, indicates that the model is randomly guessing whether an observation belongs to a particular class.
+
+Sensitivity measures the proportion of actual positive cases that are correctly identified as such. Specificity measures the proportion of real negative cases that are correctly identified. Binary Accuracy measures the proportion of correct predictions out of every prediction made.
 
 ```{r}
 augment(rf_final_fit, new_data = test_set) %>% 
@@ -296,5 +310,7 @@ augment(rf_final_fit, new_data = test_set) %>%
 augment(rf_final_fit, new_data = test_set) %>% 
   accuracy(survived, .pred_class)
 ```
+
+As we can see, the ROC-AUC was 0.89.., indicating that our model is powerful for its overall ability to distinguish between those who survived and those who didn't survive the Titanic incident. However, the model's sensitivity, or true positive rate, was mediocre at best with a value of 0.708, indicating that the model was not very good at correctly identifying an actual survivor. That being said, the model's binary accuracy and specificity were both very good, so our model was good at correctly identifying whether or not a person did not survive, and in general, the vast majority of the model's predictions were correct.
 
 ## \[ Add Regression Case \]
