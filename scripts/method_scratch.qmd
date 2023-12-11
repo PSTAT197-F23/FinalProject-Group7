@@ -1,0 +1,107 @@
+## Under the Hood of Random Forest
+
+This section of our vignette is for those who want to understand the inner workings of random forest algorithms. Note that random forest is an ensemble method, i.e., it combines the results of multiple decision trees, so before we go over a high-level overview of the random forest algorithm, we will first learn about some intuition behind decision trees.
+
+This section will go over the following:
+
+1.  Intuition Behind Decision Trees
+
+2.  Overview of the Random Forest Algorithm
+
+### Intuition Behind Decision Trees
+
+Note that we will be explaining decision trees in the context of solving a classification problem. A decision tree is a rule-based algorithm that systematically divides the predictor space, i.e., the target variable using a set of rules to split the data points into homogeneous groups. Inner nodes and root nodes represent when a rule is applied to split a predictor (bearing in mind that a decision tree follows a binary tree structure). One branch of a node contains the data points which satisfy the node's rule, while the other branch contains the data points which broke the rule.
+
+The goal is to split the predictor space, i.e., the target variable into increasingly homogeneous subgroups compared to its parent node. This process continues until either no more rules can be applied or there are no remaining data points. The nodes found at the bottom of the decision tree after the splitting process is over are called terminal or leaf nodes.
+
+The decision tree's algorithm attempts to split the data into leaf nodes which contain only a single class. These nodes are referred to as pure nodes. Not all the leaf nodes of a decision tree will be completely pure, i.e., some leaf nodes will contain a mix of multiple classes. In this case, a classification is made based on the most common data point in a node.
+
+**How does a decision tree decide how to split?**
+
+Let us explain this using an example. Imagine we want to predict a students exam result based off whether they are taking online classes, student background, and working status. To establish the root node, the decision tree algorithm will iterate through splitting each predictor to determine which split results in the most homogenous or pure nodes, and it will evaluate this using some statistical criterion. After the root node is established, subsequent splits in the tree consider only the predictors that haven't been used for splitting in the current branch.
+
+Variable selection criterion is done using one of the following approaches:
+
+• Entropy and information gain
+
+• Gini index
+
+It is left to the reader to look further into entropy and information gain, but for the purpose of this vignette, we will only explain the use of the Gini index.
+
+Let the following be our toy data set for this example.
+
+![Toy Data set for Decision Tree Example](images/toy-dataset2.png)
+
+This is the formula for calculating Gini index:
+
+![Gini Index Formula](images/gini-index-formula.png){width="386"}
+
+Keep in mind that $j$ denotes the number of classes, and $p_j$ signifies the proportion of data points belonging to class $j$ within the current node.
+
+Splitting by student background, we get three possible child nodes: maths, CS, and others.
+
+![Student Background Split Condition](images/bkgrd-tree-ex.jpg)
+
+Lets us calculate the Gini index of the child nodes of Student Background.
+
+Maths node: 2P, 5F
+
+$$
+Gini_{maths} = 1 - (\frac{2}{7})^2 - (\frac{5}{7})^2 = .4082
+$$
+
+CS node: 4P, 0F
+
+$$
+Gini_{CS} = 1 - (\frac{4}{4})^2 - (\frac{0}{4})^2 = 0
+$$
+
+Other node: 2P, 2F
+
+$$
+Gini_{other} = 1 - (\frac{2}{4})^2 - (\frac{2}{4})^2 = .5
+$$
+
+The overall Gini index of this split is calculated by taking the weighted average of the 3 nodes.
+
+$$
+Gini_{bkgrd} = \frac{7}{15}(.4082) + \frac{4}{15}(0) + \frac{4}{15}(.5) = .3238
+$$
+
+Similarly, we will calculate the Gini index for 'Work Status' and 'Online Courses' predictors.
+
+$$
+Gini_{working} = 1 - (\frac{6}{9})^2 - (\frac{3}{9})^2 = .4444
+$$
+
+$$
+Gini_{not working} = 1 - (\frac{4}{6})^2 - (\frac{2}{6})^2 = .4444
+$$
+
+$$
+Gini_{workstatus} = \frac{6}{15}(.4444) + \frac{9}{15}(.4444) = .4444
+$$
+
+$$
+Gini_{online} = 1 - (\frac{4}{8})^2 - (\frac{4}{8})^2 = .5
+$$
+
+$$
+Gini_{notonline} = 1 - (\frac{3}{7})^2 - (\frac{4}{7})^2 = .4898
+$$
+
+$$
+Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
+$$
+
+Since the Gini index is lowest for 'Student Background,' this predictor becomes the basis for splitting the root node. This concludes the logic behind how the split conditions for decision nodes are created.
+
+### Overview of Random Forest Algorithm
+
+The random forest algorithm follows these steps:
+
+1\. Take the original dataset and create $N$ bootstrapped samples of size $n$ such that $n$ is smaller than the size of the original dataset.
+
+2\. Train a decision tree for each of the bootstrapped samples, but split on a different subset of the predictors for each tree and determine the best split using impurity measures such as Gini impurity or Entropy.
+
+3\. Create a prediction by aggregating the results of all the trees. In the classification case, take the majority vote across all trees, and in the regression case, take the average across all trees.
