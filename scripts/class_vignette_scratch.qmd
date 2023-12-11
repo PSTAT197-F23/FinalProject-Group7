@@ -19,7 +19,7 @@ library(ggplot2)
 
 tidymodels_prefer()
 
-titanic_data <- read.csv('data/titanic.csv')
+titanic_data <- read.csv('../data/titanic.csv')
 
 titanic_data_1 <- titanic_data %>% 
   mutate(survived = factor(survived, levels = c("Yes", "No"))) %>% 
@@ -144,7 +144,7 @@ tune_rf <- tune_grid(
 )
 ```
 
-Finally, we will extract the best configuration of the hyper parameters using the **`select_best()`** function, create a finalized version of the random forest workflow with **`finalize_workflow()`** , and fit the finalyzed model using the entire training set with **`fit()`**.
+Finally, we will extract the best configuration of the hyper parameters using the **`select_best()`** function, create a finalized version of the random forest workflow with **`finalize_workflow()`** , and fit the finalized model using the entire training set with **`fit()`**.
 
 ```{r}
 best_rf <- select_best(tune_rf)
@@ -152,4 +152,31 @@ best_rf <- select_best(tune_rf)
 rf_final <- finalize_workflow(rf_class_wf, best_rf)
 
 rf_final_fit <- fit(rf_final, data = train_set)
+```
+
+### Prediction
+
+To make predictions using the trained random forest model (`rf_final_fit`), use the `predict()` function and provide it with new input data (`new_data`). It is required that the structure of the input data aligns with the predictor variables used during the model training process.
+
+```{r}
+new_data <- test_set[c("pclass", "sex", "age", "sib_sp", "parch", "fare")]
+predict(rf_final_fit, new_data)
+```
+
+### Accuracy Measures
+
+\[ Explain accuracy measures and model results \]
+
+```{r}
+augment(rf_final_fit, new_data = test_set) %>% 
+  roc_auc(survived, .pred_Yes)
+
+augment(rf_final_fit, new_data = test_set) %>% 
+  sensitivity(survived, .pred_class)
+
+augment(rf_final_fit, new_data = test_set) %>% 
+  specificity(survived, .pred_class)
+
+augment(rf_final_fit, new_data = test_set) %>% 
+  accuracy(survived, .pred_class)
 ```
