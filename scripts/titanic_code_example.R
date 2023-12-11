@@ -36,6 +36,7 @@ tit_folds <- vfold_cv(tit_train, v = 5, strata = "survived")
 vis_miss(tit_train)
 
 
+
 # Justify Stratification (explain on the spot)
 tit_train %>% 
   ggplot(aes(x = survived)) + 
@@ -64,7 +65,6 @@ tit.recipe <- recipe(survived ~ pclass + sex + age + sib_sp + parch + fare, data
 
 
 #random forest model/workflow creation and tuning grid initialization
-
 rf_class_spec <- rand_forest(mtry = tune(),
                              trees = tune(),
                              min_n = tune()) %>% 

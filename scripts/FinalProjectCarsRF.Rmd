@@ -1,0 +1,122 @@
+---
+title: "RandomForestCars"
+author: "Griffin Sheppard"
+date: "2023-12-03"
+output: html_document
+---
+
+```{r, message=FALSE, warning=FALSE}
+library(tidymodels)
+library(tidyverse)
+library(xgboost)
+library(glmnet)
+library(ISLR)
+library(ISLR2)
+library(ranger)
+library(vip)
+
+
+data(Auto)
+
+set.seed(10)
+```
+
+```{r}
+#converting origin to a factor
+auto <- tibble(ISLR::Auto) %>% 
+  mutate(origin = factor(origin))
+
+#Data Exploration
+pdf('AutoCorrplot.pdf')
+auto %>% 
+  select(is.numeric) %>% 
+  cor(use="pairwise.complete.obs") %>% 
+  corrplot(type="lower", diag=FALSE, title = "Correlation Plot of Auto Predictors", mar=c(0,0,1,0))
+dev.off()
+```
+
+```{r}
+#splitting
+auto_split <- initial_split(auto, strata=mpg, prop=0.8)
+auto_train <- training(auto_split)
+auto_test <- testing(auto_split)
+
+#5-fold cross validation
+auto_folds <- vfold_cv(auto_train, v = 5, strata = "mpg")
+```
+
+
+```{r}
+#making recipe
+recipe_auto <- recipe(mpg ~., data=auto_train) %>% 
+  step_rm(name) %>% #remove name of vehicle
+  step_dummy(all_nominal_predictors()) %>% 
+  step_normalize(all_predictors())
+
+#making random forest
+rf_auto <- rand_forest(mtry = tune(), #num of preds randomly sampled at each split
+                           trees = tune(), #num of trees
+                           min_n = tune()) %>% # min num of data point in a node
+  set_engine("ranger", importance = "impurity") %>% 
+  set_mode("regression")
+
+#making workflow
+rf_auto_wf <- workflow() %>% 
+  add_model(rf_auto) %>% 
+  add_recipe(recipe_auto)
+```
+
+
+```{r}
+#making grid of hyperparameter values to consider
+rf_grid_auto <- grid_regular(mtry(range = c(1, 8)), 
+                        trees(range = c(200, 600)),
+                        min_n(range = c(10, 20)),
+                        levels = 5)
+#fit RF models
+tune_auto <- tune_grid(
+  rf_auto_wf, 
+  resamples = auto_folds, 
+  grid = rf_grid_auto)
+
+#save results
+save(tune_auto, file="tune_auto.rda")
+```
+
+
+```{r, warning=FALSE}
+#load results
+load("tune_auto.rda")
+
+#plot of hyperparameter performance metrics
+autoplot(tune_auto) + theme_minimal()
+
+#show top 5 RFs
+show_best(tune_auto, n=5)
+
+#save best RF
+best_rf_auto <-select_best(tune_auto)
+
+#finalize/fit best RF
+final_auto_model <- finalize_workflow(rf_auto_wf, best_rf_auto)
+final_auto_model <- fit(final_auto_model, auto_train)
+```
+The model seems to have better performance with a smaller minimum node size, the number of trees doesn't appear to affect the performance and the performance of the model plateaus after 4 predictors. The best performing model had 8 randomly sampled predictors, 300 trees and a minimum of 10 data points in a node. It had a mean RMSE of 2.906.
+
+
+```{r}
+#graph of most important predictors
+final_auto_model %>% extract_fit_parsnip() %>% 
+  vip() +
+  theme_minimal()
+
+#RMSE of testing data
+final_auto_model_test <- augment(final_auto_model, auto_test)
+rmse(final_auto_model_test, truth=mpg, .pred)
+
+#scatterplot of actual mpg vs predicted
+final_auto_model_test %>% 
+  ggplot(aes(x = mpg, y = .pred)) +
+  geom_point(alpha = 0.5) +
+  theme_minimal()
+```
