@@ -86,16 +86,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </style>
 
 
-<script src="vignette_scratch_files/libs/clipboard/clipboard.min.js"></script>
-<script src="vignette_scratch_files/libs/quarto-html/quarto.js"></script>
-<script src="vignette_scratch_files/libs/quarto-html/popper.min.js"></script>
-<script src="vignette_scratch_files/libs/quarto-html/tippy.umd.min.js"></script>
-<script src="vignette_scratch_files/libs/quarto-html/anchor.min.js"></script>
-<link href="vignette_scratch_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="vignette_scratch_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="vignette_scratch_files/libs/bootstrap/bootstrap.min.js"></script>
-<link href="vignette_scratch_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="vignette_scratch_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="vignette_files/libs/clipboard/clipboard.min.js"></script>
+<script src="vignette_files/libs/quarto-html/quarto.js"></script>
+<script src="vignette_files/libs/quarto-html/popper.min.js"></script>
+<script src="vignette_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="vignette_files/libs/quarto-html/anchor.min.js"></script>
+<link href="vignette_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="vignette_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="vignette_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="vignette_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="vignette_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
@@ -162,53 +162,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </header>
 
-
-<style>
-/* Define your new color palette */
-:root {
-  --primary-color: #3498db;    /* Vibrant Blue */
-  --secondary-color: #e74c3c;  /* Complementary Coral */
-  --background-color: #d6eaf8; /* Light Sky Blue */
-  --toc-background-color: #ebf5fb; /* Pale Blue */
-  --toc-border-color: #48c9b0; /* Soft Teal */
-}
-
-/* Style the body with the new background color */
-body {
-  background-color: var(--background-color);
-  color: #2c3e50; /* Dark gray-blue for text */
-}
-
-/* Style headers with the new primary color */
-h1, h2, h3 {
-  color: var(--primary-color);
-}
-
-/* Style the Table of Contents with new colors */
-div.toc {
-  background-color: var(--toc-background-color);
-  border-left: 4px solid var(--toc-border-color);
-  padding: 1rem;
-  border-radius: 4px;
-}
-
-/* Style TOC headings with the new secondary color */
-div.toc h2 {
-  color: var(--secondary-color);
-}
-
-/* Style TOC links with the new primary color */
-div.toc a {
-  color: var(--primary-color);
-  text-decoration: none;
-}
-
-/* Hover effect for TOC links with the new secondary color */
-div.toc a:hover {
-  color: var(--secondary-color);
-  text-decoration: underline;
-}
-</style>
 <section id="authors-summary" class="level2">
 <h2 class="anchored" data-anchor-id="authors-summary">Authors’ Summary</h2>
 <p>This document is a vignette of random forest algorithms. We talk about the inner workings of random forest models, going as deep as describing the process of how decision trees decide node splits. We also demonstrate how to implement a random forest model in code and interpret its results for both the classification and regression cases.</p>
@@ -366,7 +319,7 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 <p>Note that we need to stratify by survived because there is an uneven proportion of people who survived the titanic versus those who did not.</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="vignette_scratch_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+<p><img src="vignette_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -391,13 +344,13 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 <p>Note that there is some missing data in the <code>age</code> variable. Using <code>step_impute_linear(age, impute_with = imp_vars(fare))</code>, we will impute missing values of age with linear regression, using <code>fare</code> as a predictor.</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="vignette_scratch_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+<p><img src="vignette_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Below we create a heat plot to visualize the correlation between the predictors we will be using for our recipe.</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="vignette_scratch_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+<p><img src="vignette_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>As one can see, some of our predictors strongly correlate with the other(s). Thus, in order to capture potentially powerful predictive power through the interactions between highly correlated predictors and avoid inferential misinterpretation, we will include interaction terms in the formula we use to construct our model.</p>
@@ -532,7 +485,7 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">vip</span>() <span class="sc">+</span> </span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="vignette_scratch_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+<p><img src="vignette_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>The chart demonstrates that the single <code>sex_male</code> predictor and the combination of <code>sex_male</code> and <code>fare</code> were the most important predictors in our model. This indicates that gender and fair price had a notable impact on survival rates, with women and passengers who paid more for their tickets likely having higher survival chances.</p>
@@ -626,7 +579,7 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plot of hyperparameter performance metrics</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(tune_auto) <span class="sc">+</span> <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="vignette_scratch_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
+<p><img src="vignette_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
@@ -703,7 +656,7 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">vip</span>() <span class="sc">+</span></span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="vignette_scratch_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="672"></p>
+<p><img src="vignette_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Displacement and weight have the highest importance scores, indicating that they are strong predictors within the model. This implies that engine size and a vehicle’s weight influence a vehicle’s fuel efficiency the most. Note that number of cylinders (which is related to an engine’s size) and year (which may reflect advances in technology) are also significant contributors.</p>

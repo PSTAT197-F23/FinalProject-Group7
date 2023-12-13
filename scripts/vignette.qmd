@@ -8,54 +8,6 @@ format:
       smooth_scroll: true
 ---
 
-```{=html}
-<style>
-/* Define your new color palette */
-:root {
-  --primary-color: #3498db;    /* Vibrant Blue */
-  --secondary-color: #e74c3c;  /* Complementary Coral */
-  --background-color: #d6eaf8; /* Light Sky Blue */
-  --toc-background-color: #ebf5fb; /* Pale Blue */
-  --toc-border-color: #48c9b0; /* Soft Teal */
-}
-
-/* Style the body with the new background color */
-body {
-  background-color: var(--background-color);
-  color: #2c3e50; /* Dark gray-blue for text */
-}
-
-/* Style headers with the new primary color */
-h1, h2, h3 {
-  color: var(--primary-color);
-}
-
-/* Style the Table of Contents with new colors */
-div.toc {
-  background-color: var(--toc-background-color);
-  border-left: 4px solid var(--toc-border-color);
-  padding: 1rem;
-  border-radius: 4px;
-}
-
-/* Style TOC headings with the new secondary color */
-div.toc h2 {
-  color: var(--secondary-color);
-}
-
-/* Style TOC links with the new primary color */
-div.toc a {
-  color: var(--primary-color);
-  text-decoration: none;
-}
-
-/* Hover effect for TOC links with the new secondary color */
-div.toc a:hover {
-  color: var(--secondary-color);
-  text-decoration: underline;
-}
-</style>
-```
 ## Authors' Summary
 
 This document is a vignette of random forest algorithms. We talk about the inner workings of random forest models, going as deep as describing the process of how decision trees decide node splits. We also demonstrate how to implement a random forest model in code and interpret its results for both the classification and regression cases.
