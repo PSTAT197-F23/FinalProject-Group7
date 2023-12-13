@@ -6,6 +6,8 @@
 
 3.  Regression Case: Miles Per Gallon Prediction
 
+4.  References
+
 ## Under the Hood of Random Forest
 
 This section of our vignette is for those who want to understand the inner workings of random forest algorithms. Note that random forest is an ensemble method, i.e., it combines the results of multiple decision trees, so before we go over a high-level overview of the random forest algorithm, we will first learn about some intuition behind decision trees.
@@ -50,7 +52,7 @@ Splitting by student background, we get three possible child nodes: maths, CS, a
 
 ![Student Background Split Condition](images/bkgrd-tree-ex.jpg)
 
-Lets us calculate the Gini index of the child nodes of Student Background.
+Let us calculate the Gini index of the child nodes of Student Background.
 
 Maths node: 2P, 5F
 
@@ -132,6 +134,7 @@ library(corrplot)
 library(corrr)
 library(klaR)
 library(ggplot2)
+library(vip)
 
 tidymodels_prefer()
 
@@ -192,7 +195,7 @@ train.recipe <- recipe(survived ~ pclass + sex + age + sib_sp + parch + fare, da
   step_interact(terms = ~ starts_with('sex'):fare + age:fare)
 ```
 
-Note that there is some missing data in the `age` variable, using `step_impute_linear(age, impute_with = imp_vars(fare))` we will impute missing values of age with linear regression, using `fare` as a predictor.
+Note that there is some missing data in the `age` variable. Using `step_impute_linear(age, impute_with = imp_vars(fare))`, we will impute missing values of age with linear regression, using `fare` as a predictor.
 
 ```{r, echo=FALSE}
 vis_miss(train_set)
@@ -224,9 +227,9 @@ rf_class_spec <- rand_forest(mtry = tune(),
   set_mode("classification")
 ```
 
-The `rand_forest(mtry = tune(), trees = tune(), min_n = tune())` function is used to specify the hyper parameters being tuned.
+The `rand_forest(mtry = tune(), trees = tune(), min_n = tune())` function is used to initialize a random forest model and specify the hyper parameters being tuned.
 
--   `mtry`: Number of predictors used to train each decision tree in the random forest, e.g, if we want to build decision trees that were each trained on 3 random predictors of the original training set, then we would set `mtry = 3`.
+-   `mtry`: Number of predictors used to train each decision tree in the random forest, e.g., if we want to build decision trees that were each trained on 3 random predictors of the original training set, then we would set `mtry = 3`.
 
 -   `trees`: Number of decision trees to be included in the random forest, e.g., if we only wanted our forest to contain 4 decision trees, then we would set `trees = 4`.
 
@@ -264,7 +267,7 @@ tune_rf <- tune_grid(
 
 Finally, we will extract the best configuration of the hyper parameters using the **`select_best()`** function, create a finalized version of the random forest workflow with **`finalize_workflow()`** , and fit the finalized model using the entire training set with **`fit()`**.
 
-```{r}
+```{r, warning=FALSE}
 best_rf <- select_best(tune_rf)
 
 rf_final <- finalize_workflow(rf_class_wf, best_rf)
@@ -313,4 +316,182 @@ augment(rf_final_fit, new_data = test_set) %>%
 
 As we can see, the ROC-AUC was 0.89.., indicating that our model is powerful for its overall ability to distinguish between those who survived and those who didn't survive the Titanic incident. However, the model's sensitivity, or true positive rate, was mediocre at best with a value of 0.708, indicating that the model was not very good at correctly identifying an actual survivor. That being said, the model's binary accuracy and specificity were both very good, so our model was good at correctly identifying whether or not a person did not survive, and in general, the vast majority of the model's predictions were correct.
 
-## \[ Add Regression Case \]
+### Variable Importance Scores
+
+Variable importance scores tell us how influential each variable is to contributing to the model's predictive performance.
+
+The following code block produces a bar chart plotting the importance scores of each variable used in our final random forest model.
+
+```{r}
+rf_final_fit %>% extract_fit_parsnip() %>% 
+  vip() + 
+  theme_classic()
+```
+
+The chart demonstrates that the single `sex_male` predictor and the combination of `sex_male` and `fare` were the most important predictors in our model. This indicates that gender and fair price had a notable impact on survival rates, with women and passengers who paid more for their tickets likely having higher survival chances.
+
+## Regression Case: Miles Per Gallon Prediction
+
+Please be aware that numerous steps in our regression case of random forests align with those from our classification example. Consequently, we will provide a more concise overview of the regression case when in steps that align in both examples.
+
+### Prerequisites
+
+Copy and paste the following block of code into a new script to load the required packages and data used for this example. If an error appears, then you likely don't have one of the libraries installed (note that some of these packages align with those used in the classification case). We will also set the type of the `origin` variable to factor.
+
+```{r, message=FALSE, warning=FALSE}
+library(tidymodels)
+library(tidyverse)
+library(xgboost)
+library(glmnet)
+library(ISLR)
+library(ISLR2)
+library(ranger)
+library(vip)
+
+
+data(Auto)
+
+set.seed(10)
+
+#converting origin to a factor
+auto <- tibble(ISLR::Auto) %>% 
+  mutate(origin = factor(origin))
+```
+
+### Partition
+
+We will allocate 80% of the data into the training set and the last 20% of the data into the testing set (while stratifying by `mpg`) using the `initial_split(auto, strata=mpg, prop=0.8)` function. We'll retrieve the training and testing sets with `training(auto_split)` and `testing(auto_split)`, respectively.
+
+```{r}
+auto_split <- initial_split(auto, strata=mpg, prop=0.8)
+auto_train <- training(auto_split)
+auto_test <- testing(auto_split)
+```
+
+### K-Folds Cross Validation
+
+We will divide the training set into five folds (while stratifying by `mpg`) using the `vfold_cv(auto_train, v = 5, strata = "mpg")` function, allowing our model to train and evaluate across multiple segments of the training data, minimizing the risk of over fitting.
+
+```{r}
+auto_folds <- vfold_cv(auto_train, v = 5, strata = "mpg")
+```
+
+### Data Preparation
+
+Note that the `recipe()` function allows us to create a set of instructions to preprocess the data before applying it to train a machine learning algorithm.
+
+Using the `recipe(mpg ~., data=auto_train)` function, we will initialize a new recipe, assigning `mpg` as the response and every other variable in the data set as a predictor.
+
+Using the `step_rm(name)` function, we will remove the `name` variable as it is not appropriate to use in our model. Using `step_dummy(all_nominal_predictors())` and `step_normalize(all_predictors())`, we will dummify nominal predictors and normalize all predictors, respectively.
+
+```{r}
+recipe_auto <- recipe(mpg ~., data=auto_train) %>% 
+  step_rm(name) %>% #remove name of vehicle
+  step_dummy(all_nominal_predictors()) %>% 
+  step_normalize(all_predictors())
+```
+
+### Model Fitting
+
+We will initialize a new random forest model and specify the hyper parameters using `rand_forest(mtry = tune(), trees = tune(), min_n = tune())`. The hyper parameters of our model are `mtry`, `trees`, and `min_n`. Using `set_engine("ranger", importance = "impurity")`, we will use the random forest implementation from the "ranger" package and set our importance method as "impurity". The `set_mode("regression")` function specifies the random forest model as a regression model.
+
+Refer to the "Model Fitting" section of the classification case for an explanation of the hyper parameters and importance method.
+
+```{r}
+rf_auto <- rand_forest(mtry = tune(), #num of preds randomly sampled at each split
+                           trees = tune(), #num of trees
+                           min_n = tune()) %>% # min num of data point in a node
+  set_engine("ranger", importance = "impurity") %>% 
+  set_mode("regression")
+```
+
+Next, we define a workflow (`rf_auto_wf`) to combine our regression model (`rf_auto`) and our data preparation recipe (`recipe_auto`).
+
+```{r}
+rf_auto_wf <- workflow() %>% 
+  add_model(rf_auto) %>% 
+  add_recipe(recipe_auto)
+```
+
+The next step is to create our tuning grid and tune the model to find the most optimal configuration of our hyper parameters.
+
+```{r}
+rf_grid_auto <- grid_regular(mtry(range = c(1, 8)), 
+                        trees(range = c(200, 600)),
+                        min_n(range = c(10, 20)),
+                        levels = 5)
+#fit RF models
+tune_auto <- tune_grid(
+  rf_auto_wf, 
+  resamples = auto_folds, 
+  grid = rf_grid_auto)
+```
+
+Let us explore some hyper parameter metrics with the following code blocks.
+
+```{r}
+#plot of hyperparameter performance metrics
+autoplot(tune_auto) + theme_minimal()
+```
+
+```{r, warning=FALSE}
+#show top 5 RFs
+show_best(tune_auto, n=5)
+```
+
+The model seems to have better performance with a smaller minimum node size, the number of trees doesn't appear to affect the performance and the performance of the model plateaus after 4 predictors. The best performing model had 8 randomly sampled predictors, 300 trees and a minimum of 10 data points in a node. It had a mean RMSE of 2.906 (we will explain what RMSE means in the "Accuracy Measures" section).
+
+Lastly, we can extract the best configuration of hyper parameters with `select_best(tune_auto)`, finalize our workflow with `finalize_workflow(rf_auto_wf, best_rf_auto)`, and fit our model with `fit(final_auto_model, auto_train)`.
+
+```{r, warning=FALSE}
+#save best RF
+best_rf_auto <-select_best(tune_auto)
+
+#finalize/fit best RF
+final_auto_model <- finalize_workflow(rf_auto_wf, best_rf_auto)
+final_auto_model <- fit(final_auto_model, auto_train)
+
+```
+
+### Prediction
+
+To make predictions using the trained random forest model (`final_auto_model`), use the `predict()` function and provide it with new input data (`new_data`). It is required that the structure of the input data aligns with the predictor variables used during the model training process. Here, we will generate predictions from all the input points in our test set.
+
+```{r}
+new_data <- auto_test[c("cylinders","displacement","horsepower","weight","acceleration","year","origin", "name" )]
+predict(final_auto_model, new_data)
+```
+
+### Accuracy Measures
+
+Now, we check how our model performed on the testing data using the RMSE metric.
+
+RMSE is one of the common metrics used for measuring a model's accuracy when dealing with regression problems. RMSE is equal to the square root of the average squared differences between the predicted values and the observed values. Note that a lower value of RMSE indicates better model performance.
+
+```{r}
+final_auto_model_test <- augment(final_auto_model, auto_test)
+rmse(final_auto_model_test, truth=mpg, .pred)
+```
+
+An RMSE of 2.002811 indicates that, on average, the model's predictions are 2.002811 units away from their observed values. The model's fit based off the RMSE depends on the specifics of the data and the required precision of the problem, but with a range of 31.1 (in `mpg`), an RMSE of 2.002811 is considered relatively low. Therefore, our model has decent predictive accuracy.
+
+### Variable Importance
+
+Variable importance scores tell us how influential each variable is to contributing to the model's predictive performance.
+
+The following code block produces a bar chart plotting the importance scores of each variable used in our final random forest model.
+
+```{r}
+final_auto_model %>% extract_fit_parsnip() %>% 
+  vip() +
+  theme_minimal()
+```
+
+Displacement and weight have the highest importance scores, indicating that they are strong predictors within the model. This implies that engine size and a vehicle's weight influence a vehicle's fuel efficiency the most. Note that number of cylinders (which is related to an engine's size) and year (which may reflect advances in technology) are also significant contributers.
+
+## References
+
+Shailey Dash. (2022). "Decision Trees Explained - Entropy, Information Gain, Gini Index, CCP Pruning." Towards Data Science. Available at: https://towardsdatascience.com/decision-trees-explained-entropy-information-gain-gini-index-ccp-pruning-4d78070db36c. This article provides an overview of decision trees, focusing on
+topics like Entropy, Information Gain, Gini Index, and CCP Pruning.
+
+Carolina Bento. (2021). "Random Forests Algorithm Explained with a Real-Life Example and Some Python Code." Towards Data Science. Available at: https://towardsdatascience.com/random-forests-algorithm-explained-with-a-real-life-example-and-some-python-code-affbfa5a942c. This article explains the Random Forests algorithm, and includes a practical example along with Python code to demonstrate its application.

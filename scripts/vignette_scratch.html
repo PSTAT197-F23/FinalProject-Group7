@@ -127,11 +127,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ol>
 <section id="intuition-behind-decision-trees" class="level3">
 <h3 class="anchored" data-anchor-id="intuition-behind-decision-trees">Intuition Behind Decision Trees</h3>
-<p>Note that we will be explaining decision trees in the context of solving a classification problem. A decision tree is a rule-based algorithm that systematically divides the predictor space, i.e., the target variable using a set of rules to split the data points into homogeneous groups. Inner nodes and root nodes represent when a rule is applied to split a predictor (bearing in mind that a decision tree follows a binary tree structure). One branch of a node contains the data points which satisfy the node’s rule, while the other branch contains the data points which broke the rule.</p>
-<p>The goal is to split the predictor space, i.e., the target variable into increasingly homogeneous subgroups compared to its parent node. This process continues until either no more rules can be applied or there are no remaining data points. The nodes found at the bottom of the decision tree after the splitting process is over are called terminal or leaf nodes.</p>
-<p>The decision tree’s algorithm attempts to split the data into leaf nodes which contain only a single class. These nodes are referred to as pure nodes. Not all the leaf nodes of a decision tree will be completely pure, i.e., some leaf nodes will contain a mix of multiple classes. In this case, a classification is made based on the most common data point in a node.</p>
+<p>Note that we will explain decision trees in the context of solving a classification problem. A decision tree is a rule-based algorithm that systematically divides the predictor space, i.e., the target variable, using a set of rules to split the data points into homogeneous groups. Inner and root nodes represent when a rule is applied to split a predictor (considering that a decision tree follows a binary tree structure). One branch of a node contains the data points that satisfy the node’s rule, while the other contains the data points that break the rule.</p>
+<p>The goal is to split the target variable into increasingly homogeneous subgroups compared to its parent node. This process continues until no more rules can be applied or no remaining data points. The nodes at the bottom of the decision tree after the splitting process is over are called terminal or leaf nodes.</p>
+<p>The decision tree’s algorithm attempts to split the data into leaf nodes containing only a single class. These nodes are referred to as pure nodes. Not all the leaf nodes of a decision tree will be completely pure, i.e., some leaf nodes will contain a mix of multiple classes. In this case, a classification is made based on a node’s most common data point.</p>
 <p><strong>How does a decision tree decide how to split?</strong></p>
-<p>Let us explain this using an example. Imagine we want to predict a students exam result based off whether they are taking online classes, student background, and working status. To establish the root node, the decision tree algorithm will iterate through splitting each predictor to determine which split results in the most homogenous or pure nodes, and it will evaluate this using some statistical criterion. After the root node is established, subsequent splits in the tree consider only the predictors that haven’t been used for splitting in the current branch.</p>
+<p>Let us explain this using an example. Imagine we want to predict a student’s exam result based on whether they are taking online classes, student background, and working status. To establish the root node, the decision tree algorithm will iterate through splitting each predictor to determine which split results in the most homogenous or pure nodes, and it will evaluate this using some statistical criterion. After the root node is established, subsequent splits in the tree consider only the predictors that haven’t been used for splitting in the current branch.</p>
 <p>Variable selection criterion is done using one of the following approaches:</p>
 <p>• Entropy and information gain</p>
 <p>• Gini index</p>
@@ -158,7 +158,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p></p><figcaption class="figure-caption">Student Background Split Condition</figcaption><p></p>
 </figure>
 </div>
-<p>Lets us calculate the Gini index of the child nodes of Student Background.</p>
+<p>Let us calculate the Gini index of the child nodes of Student Background.</p>
 <p>Maths node: 2P, 5F</p>
 <p><span class="math display">\[
 Gini_{maths} = 1 - (\frac{2}{7})^2 - (\frac{5}{7})^2 = .4082
@@ -221,14 +221,15 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corrr)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(klaR)</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">tidymodels_prefer</span>()</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>titanic_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">'../data/titanic.csv'</span>)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>titanic_data_1 <span class="ot">&lt;-</span> titanic_data <span class="sc">%&gt;%</span> </span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">survived =</span> <span class="fu">factor</span>(survived, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Yes"</span>, <span class="st">"No"</span>))) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pclass =</span> <span class="fu">factor</span>(pclass))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(vip)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">tidymodels_prefer</span>()</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>titanic_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">'../data/titanic.csv'</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>titanic_data_1 <span class="ot">&lt;-</span> titanic_data <span class="sc">%&gt;%</span> </span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">survived =</span> <span class="fu">factor</span>(survived, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Yes"</span>, <span class="st">"No"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pclass =</span> <span class="fu">factor</span>(pclass))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="partition" class="level3">
@@ -267,18 +268,19 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span> </span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_interact</span>(<span class="at">terms =</span> <span class="sc">~</span> <span class="fu">starts_with</span>(<span class="st">'sex'</span>)<span class="sc">:</span>fare <span class="sc">+</span> age<span class="sc">:</span>fare)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Note that there is some missing data in the <code>age</code> variable, using <code>step_impute_linear(age, impute_with = imp_vars(fare))</code> we will impute missing values of age with linear regression, using <code>fare</code> as a predictor.</p>
+<p>Note that there is some missing data in the <code>age</code> variable. Using <code>step_impute_linear(age, impute_with = imp_vars(fare))</code>, we will impute missing values of age with linear regression, using <code>fare</code> as a predictor.</p>
 <div class="cell">
 <div class="cell-output-display">
 <p><img src="vignette_scratch_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>[ Explain use of interaction terms]</p>
+<p>Below we create a heat plot to visualize the correlation between the predictors we will be using for our recipe.</p>
 <div class="cell">
 <div class="cell-output-display">
 <p><img src="vignette_scratch_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>As one can see, some of our predictors strongly correlate with the other(s). Thus, in order to capture potentially powerful predictive power through the interactions between highly correlated predictors and avoid inferential misinterpretation, we will include interaction terms in the formula we use to construct our model.</p>
 <p>The <code>step_dummy(all_nominal_predictors())</code> function simply turns all the nominal predictors into dummies.</p>
 </section>
 <section id="model-fitting" class="level3">
@@ -291,9 +293,9 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"ranger"</span>, <span class="at">importance =</span> <span class="st">"impurity"</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The <code>rand_forest(mtry = tune(), trees = tune(), min_n = tune())</code> function is used to specify the hyper parameters being tuned.</p>
+<p>The <code>rand_forest(mtry = tune(), trees = tune(), min_n = tune())</code> function is used to initialize a random forest model and specify the hyper parameters being tuned.</p>
 <ul>
-<li><p><code>mtry</code>: Number of predictors used to train each decision tree in the random forest, e.g, if we want to build decision trees that were each trained on 3 random predictors of the original training set, then we would set <code>mtry = 3</code>.</p></li>
+<li><p><code>mtry</code>: Number of predictors used to train each decision tree in the random forest, e.g., if we want to build decision trees that were each trained on 3 random predictors of the original training set, then we would set <code>mtry = 3</code>.</p></li>
 <li><p><code>trees</code>: Number of decision trees to be included in the random forest, e.g., if we only wanted our forest to contain 4 decision trees, then we would set <code>trees = 4</code>.</p></li>
 <li><p><code>min_n</code>: Minimum number of observations required for further splitting, e.g., if the number of observations within a node falls below this threshold during the tree-building process, then further splitting of this node is halted and it becomes a terminal node.</p></li>
 </ul>
@@ -323,21 +325,19 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 </div>
 <p>Finally, we will extract the best configuration of the hyper parameters using the <strong><code>select_best()</code></strong> function, create a finalized version of the random forest workflow with <strong><code>finalize_workflow()</code></strong> , and fit the finalized model using the entire training set with <strong><code>fit()</code></strong>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>best_rf <span class="ot">&lt;-</span> <span class="fu">select_best</span>(tune_rf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: No value of `metric` was given; metric 'roc_auc' will be used.</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>rf_final <span class="ot">&lt;-</span> <span class="fu">finalize_workflow</span>(rf_class_wf, best_rf)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>rf_final_fit <span class="ot">&lt;-</span> <span class="fu">fit</span>(rf_final, <span class="at">data =</span> train_set)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>best_rf <span class="ot">&lt;-</span> <span class="fu">select_best</span>(tune_rf)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>rf_final <span class="ot">&lt;-</span> <span class="fu">finalize_workflow</span>(rf_class_wf, best_rf)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>rf_final_fit <span class="ot">&lt;-</span> <span class="fu">fit</span>(rf_final, <span class="at">data =</span> train_set)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="prediction" class="level3">
 <h3 class="anchored" data-anchor-id="prediction">Prediction</h3>
 <p>To make predictions using the trained random forest model (<code>rf_final_fit</code>), use the <code>predict()</code> function and provide it with new input data (<code>new_data</code>). It is required that the structure of the input data aligns with the predictor variables used during the model training process.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>new_data <span class="ot">&lt;-</span> test_set[<span class="fu">c</span>(<span class="st">"pclass"</span>, <span class="st">"sex"</span>, <span class="st">"age"</span>, <span class="st">"sib_sp"</span>, <span class="st">"parch"</span>, <span class="st">"fare"</span>)]</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(rf_final_fit, new_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>new_data <span class="ot">&lt;-</span> test_set[<span class="fu">c</span>(<span class="st">"pclass"</span>, <span class="st">"sex"</span>, <span class="st">"age"</span>, <span class="st">"sib_sp"</span>, <span class="st">"parch"</span>, <span class="st">"fare"</span>)]</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(rf_final_fit, new_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 268 × 1
    .pred_class
@@ -358,34 +358,42 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 </section>
 <section id="accuracy-measures" class="level3">
 <h3 class="anchored" data-anchor-id="accuracy-measures">Accuracy Measures</h3>
-<p>[ Explain accuracy measures and model results ]</p>
+<p>Now, we check how our model performed on the testing data. We will use the following metrics:</p>
+<ul>
+<li><p>ROC-AUC (Receiver Operating Characteristic - Area Under Curve)</p></li>
+<li><p>Sensitivity (True Positive Rate)</p></li>
+<li><p>Specificity (True Negative Rate)</p></li>
+<li><p>Binary Accuracy</p></li>
+</ul>
+<p>ROC-AUC is a measure of the model’s ability to distinguish between two classes and calculates the area under the curve of a plot made on a graph with Sensitivity on the Y-axis and Specificity on the X-axis. An AUC of 1 indicates a model that can perfectly distinguish between two classes. An AUC of 0.5, however, indicates that the model is randomly guessing whether an observation belongs to a particular class.</p>
+<p>Sensitivity measures the proportion of actual positive cases that are correctly identified as such. Specificity measures the proportion of real negative cases that are correctly identified. Binary Accuracy measures the proportion of correct predictions out of every prediction made.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">augment</span>(rf_final_fit, <span class="at">new_data =</span> test_set) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">roc_auc</span>(survived, .pred_Yes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">augment</span>(rf_final_fit, <span class="at">new_data =</span> test_set) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">roc_auc</span>(survived, .pred_Yes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 3
   .metric .estimator .estimate
   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
 1 roc_auc binary         0.901</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">augment</span>(rf_final_fit, <span class="at">new_data =</span> test_set) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sensitivity</span>(survived, .pred_class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">augment</span>(rf_final_fit, <span class="at">new_data =</span> test_set) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sensitivity</span>(survived, .pred_class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 3
   .metric     .estimator .estimate
   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;
 1 sensitivity binary         0.689</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">augment</span>(rf_final_fit, <span class="at">new_data =</span> test_set) <span class="sc">%&gt;%</span> </span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">specificity</span>(survived, .pred_class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">augment</span>(rf_final_fit, <span class="at">new_data =</span> test_set) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">specificity</span>(survived, .pred_class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 3
   .metric     .estimator .estimate
   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;
 1 specificity binary         0.976</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">augment</span>(rf_final_fit, <span class="at">new_data =</span> test_set) <span class="sc">%&gt;%</span> </span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">accuracy</span>(survived, .pred_class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">augment</span>(rf_final_fit, <span class="at">new_data =</span> test_set) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">accuracy</span>(survived, .pred_class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 3
   .metric  .estimator .estimate
@@ -393,10 +401,198 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 1 accuracy binary         0.866</code></pre>
 </div>
 </div>
+<p>As we can see, the ROC-AUC was 0.89.., indicating that our model is powerful for its overall ability to distinguish between those who survived and those who didn’t survive the Titanic incident. However, the model’s sensitivity, or true positive rate, was mediocre at best with a value of 0.708, indicating that the model was not very good at correctly identifying an actual survivor. That being said, the model’s binary accuracy and specificity were both very good, so our model was good at correctly identifying whether or not a person did not survive, and in general, the vast majority of the model’s predictions were correct.</p>
+</section>
+<section id="variable-importance-scores" class="level3">
+<h3 class="anchored" data-anchor-id="variable-importance-scores">Variable Importance Scores</h3>
+<p>Variable importance scores tell us how influential each variable is to contributing to the model’s predictive performance.</p>
+<p>The following code block produces a bar chart plotting the importance scores of each variable used in our final random forest model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>rf_final_fit <span class="sc">%&gt;%</span> <span class="fu">extract_fit_parsnip</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">vip</span>() <span class="sc">+</span> </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="vignette_scratch_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The chart demonstrates that the single <code>sex_male</code> predictor and the combination of <code>sex_male</code> and <code>fare</code> were the most important predictors in our model. This indicates that gender and fair price had a notable impact on survival rates, with women and passengers who paid more for their tickets likely having higher survival chances.</p>
 </section>
 </section>
-<section id="add-regression-case" class="level2">
-<h2 class="anchored" data-anchor-id="add-regression-case">[ Add Regression Case ]</h2>
+<section id="regression-case-miles-per-gallon-prediction" class="level2">
+<h2 class="anchored" data-anchor-id="regression-case-miles-per-gallon-prediction">Regression Case: Miles Per Gallon Prediction</h2>
+<p>Please be aware that numerous steps in our regression case of random forests align with those from our classification example. Consequently, we will provide a more concise overview of the regression case when in steps that align in both examples.</p>
+<section id="prerequisites-1" class="level3">
+<h3 class="anchored" data-anchor-id="prerequisites-1">Prerequisites</h3>
+<p>Copy and paste the following block of code into a new script to load the required packages and data used for this example. If an error appears, then you likely don’t have one of the libraries installed (note that some of these packages align with those used in the classification case). We will also set the type of the <code>origin</code> variable to factor.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(xgboost)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(glmnet)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ISLR)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ISLR2)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ranger)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(vip)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(Auto)</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="co">#converting origin to a factor</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>auto <span class="ot">&lt;-</span> <span class="fu">tibble</span>(ISLR<span class="sc">::</span>Auto) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">origin =</span> <span class="fu">factor</span>(origin))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="partition-1" class="level3">
+<h3 class="anchored" data-anchor-id="partition-1">Partition</h3>
+<p>We will allocate 80% of the data into the training set and the last 20% of the data into the testing set (while stratifying by <code>mpg</code>) using the <code>initial_split(auto, strata=mpg, prop=0.8)</code> function. We’ll retrieve the training and testing sets with <code>training(auto_split)</code> and <code>testing(auto_split)</code>, respectively.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>auto_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(auto, <span class="at">strata=</span>mpg, <span class="at">prop=</span><span class="fl">0.8</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>auto_train <span class="ot">&lt;-</span> <span class="fu">training</span>(auto_split)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>auto_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(auto_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="k-folds-cross-validation-1" class="level3">
+<h3 class="anchored" data-anchor-id="k-folds-cross-validation-1">K-Folds Cross Validation</h3>
+<p>We will divide the training set into five folds (while stratifying by <code>mpg</code>) using the <code>vfold_cv(auto_train, v = 5, strata = "mpg")</code> function, allowing our model to train and evaluate across multiple segments of the training data, minimizing the risk of over fitting.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>auto_folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(auto_train, <span class="at">v =</span> <span class="dv">5</span>, <span class="at">strata =</span> <span class="st">"mpg"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="data-preparation-1" class="level3">
+<h3 class="anchored" data-anchor-id="data-preparation-1">Data Preparation</h3>
+<p>Note that the <code>recipe()</code> function allows us to create a set of instructions to preprocess the data before applying it to train a machine learning algorithm.</p>
+<p>Using the <code>recipe(mpg ~., data=auto_train)</code> function, we will initialize a new recipe, assigning <code>mpg</code> as the response and every other variable in the data set as a predictor.</p>
+<p>Using the <code>step_rm(name)</code> function, we will remove the <code>name</code> variable as it is not appropriate to use in our model. Using <code>step_dummy(all_nominal_predictors())</code> and <code>step_normalize(all_predictors())</code>, we will dummify nominal predictors and normalize all predictors, respectively.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>recipe_auto <span class="ot">&lt;-</span> <span class="fu">recipe</span>(mpg <span class="sc">~</span>., <span class="at">data=</span>auto_train) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_rm</span>(name) <span class="sc">%&gt;%</span> <span class="co">#remove name of vehicle</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_normalize</span>(<span class="fu">all_predictors</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="model-fitting-1" class="level3">
+<h3 class="anchored" data-anchor-id="model-fitting-1">Model Fitting</h3>
+<p>We will initialize a new random forest model and specify the hyper parameters using <code>rand_forest(mtry = tune(), trees = tune(), min_n = tune())</code>. The hyper parameters of our model are <code>mtry</code>, <code>trees</code>, and <code>min_n</code>. Using <code>set_engine("ranger", importance = "impurity")</code>, we will use the random forest implementation from the “ranger” package and set our importance method as “impurity”. The <code>set_mode("regression")</code> function specifies the random forest model as a regression model.</p>
+<p>Refer to the “Model Fitting” section of the classification case for an explanation of the hyper parameters and importance method.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>rf_auto <span class="ot">&lt;-</span> <span class="fu">rand_forest</span>(<span class="at">mtry =</span> <span class="fu">tune</span>(), <span class="co">#num of preds randomly sampled at each split</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">trees =</span> <span class="fu">tune</span>(), <span class="co">#num of trees</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">min_n =</span> <span class="fu">tune</span>()) <span class="sc">%&gt;%</span> <span class="co"># min num of data point in a node</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"ranger"</span>, <span class="at">importance =</span> <span class="st">"impurity"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Next, we define a workflow (<code>rf_auto_wf</code>) to combine our regression model (<code>rf_auto</code>) and our data preparation recipe (<code>recipe_auto</code>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>rf_auto_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(rf_auto) <span class="sc">%&gt;%</span> </span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(recipe_auto)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The next step is to create our tuning grid and tune the model to find the most optimal configuration of our hyper parameters.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>rf_grid_auto <span class="ot">&lt;-</span> <span class="fu">grid_regular</span>(<span class="fu">mtry</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">8</span>)), </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">trees</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">200</span>, <span class="dv">600</span>)),</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">min_n</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>)),</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">levels =</span> <span class="dv">5</span>)</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="co">#fit RF models</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>tune_auto <span class="ot">&lt;-</span> <span class="fu">tune_grid</span>(</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  rf_auto_wf, </span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">resamples =</span> auto_folds, </span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">grid =</span> rf_grid_auto)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let us explore some hyper parameter metrics with the following code blocks.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plot of hyperparameter performance metrics</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(tune_auto) <span class="sc">+</span> <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="vignette_scratch_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">#show top 5 RFs</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">show_best</span>(tune_auto, <span class="at">n=</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 9
+   mtry trees min_n .metric .estimator  mean     n std_err .config              
+  &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;                
+1     8   300    10 rmse    standard    2.91     5   0.191 Preprocessor1_Model0…
+2     6   400    12 rmse    standard    2.92     5   0.183 Preprocessor1_Model0…
+3     6   300    12 rmse    standard    2.92     5   0.190 Preprocessor1_Model0…
+4     6   400    10 rmse    standard    2.92     5   0.194 Preprocessor1_Model0…
+5     8   500    12 rmse    standard    2.92     5   0.178 Preprocessor1_Model0…</code></pre>
+</div>
+</div>
+<p>The model seems to have better performance with a smaller minimum node size, the number of trees doesn’t appear to affect the performance and the performance of the model plateaus after 4 predictors. The best performing model had 8 randomly sampled predictors, 300 trees and a minimum of 10 data points in a node. It had a mean RMSE of 2.906 (we will explain what RMSE means in the “Accuracy Measures” section).</p>
+<p>Lastly, we can extract the best configuration of hyper parameters with <code>select_best(tune_auto)</code>, finalize our workflow with <code>finalize_workflow(rf_auto_wf, best_rf_auto)</code>, and fit our model with <code>fit(final_auto_model, auto_train)</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co">#save best RF</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>best_rf_auto <span class="ot">&lt;-</span><span class="fu">select_best</span>(tune_auto)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co">#finalize/fit best RF</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>final_auto_model <span class="ot">&lt;-</span> <span class="fu">finalize_workflow</span>(rf_auto_wf, best_rf_auto)</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>final_auto_model <span class="ot">&lt;-</span> <span class="fu">fit</span>(final_auto_model, auto_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="prediction-1" class="level3">
+<h3 class="anchored" data-anchor-id="prediction-1">Prediction</h3>
+<p>To make predictions using the trained random forest model (<code>final_auto_model</code>), use the <code>predict()</code> function and provide it with new input data (<code>new_data</code>). It is required that the structure of the input data aligns with the predictor variables used during the model training process. Here, we will generate predictions from all the input points in our test set.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>new_data <span class="ot">&lt;-</span> auto_test[<span class="fu">c</span>(<span class="st">"cylinders"</span>,<span class="st">"displacement"</span>,<span class="st">"horsepower"</span>,<span class="st">"weight"</span>,<span class="st">"acceleration"</span>,<span class="st">"year"</span>,<span class="st">"origin"</span>, <span class="st">"name"</span> )]</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(final_auto_model, new_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 80 × 1
+   .pred
+   &lt;dbl&gt;
+ 1  14.6
+ 2  16.2
+ 3  14.3
+ 4  15.6
+ 5  28.1
+ 6  24.6
+ 7  24.6
+ 8  25.2
+ 9  20.5
+10  13.1
+# ℹ 70 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="accuracy-measures-1" class="level3">
+<h3 class="anchored" data-anchor-id="accuracy-measures-1">Accuracy Measures</h3>
+<p>Now, we check how our model performed on the testing data using the RMSE metric.</p>
+<p>RMSE is one of the common metrics used for measuring a model’s accuracy when dealing with regression problems. RMSE is equal to the square root of the average squared differences between the predicted values and the observed values. Note that a lower value of RMSE indicates better model performance.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>final_auto_model_test <span class="ot">&lt;-</span> <span class="fu">augment</span>(final_auto_model, auto_test)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rmse</span>(final_auto_model_test, <span class="at">truth=</span>mpg, .pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard        2.00</code></pre>
+</div>
+</div>
+<p>An RMSE of 2.002811 indicates that, on average, the model’s predictions are 2.002811 units away from their observed values. The model’s fit based off the RMSE depends on the specifics of the data and the required precision of the problem, but with a range of 31.1 (in <code>mpg</code>), an RMSE of 2.002811 is considered relatively low. Therefore, our model has decent predictive accuracy.</p>
+</section>
+<section id="variable-importance" class="level3">
+<h3 class="anchored" data-anchor-id="variable-importance">Variable Importance</h3>
+<p>Variable importance scores tell us how influential each variable is to contributing to the model’s predictive performance.</p>
+<p>The following code block produces a bar chart plotting the importance scores of each variable used in our final random forest model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>final_auto_model <span class="sc">%&gt;%</span> <span class="fu">extract_fit_parsnip</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">vip</span>() <span class="sc">+</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="vignette_scratch_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Displacement and weight have the highest importance scores, indicating that they are strong predictors within the model. This implies that engine size and a vehicle’s weight influence a vehicle’s fuel efficiency the most. Note that number of cylinders (which is related to an engine’s size) and year (which may reflect advances in technology) are also significant contributers.</p>
+</section>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<p>Shailey Dash. (2022). “Decision Trees Explained - Entropy, Information Gain, Gini Index, CCP Pruning.” Towards Data Science. Available at: https://towardsdatascience.com/decision-trees-explained-entropy-information-gain-gini-index-ccp-pruning-4d78070db36c. This article provides an overview of decision trees, focusing on topics like Entropy, Information Gain, Gini Index, and CCP Pruning.</p>
+<p>Carolina Bento. (2021). “Random Forests Algorithm Explained with a Real-Life Example and Some Python Code.” Towards Data Science. Available at: https://towardsdatascience.com/random-forests-algorithm-explained-with-a-real-life-example-and-some-python-code-affbfa5a942c. This article explains the Random Forests algorithm, and includes a practical example along with Python code to demonstrate its application.</p>
 </section>
 
 </main>
