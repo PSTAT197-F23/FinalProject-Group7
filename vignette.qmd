@@ -170,7 +170,7 @@ library(vip)
 
 tidymodels_prefer()
 
-titanic_data <- read.csv('../data/titanic.csv')
+titanic_data <- read.csv('data/titanic.csv')
 
 titanic_data_1 <- titanic_data %>% 
   mutate(survived = factor(survived, levels = c("Yes", "No"))) %>% 
