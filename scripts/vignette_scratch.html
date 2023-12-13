@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>vignette_scratch</title>
+<title>Random Forest Vignette</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -101,20 +101,127 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </head>
 
-<body class="fullcontent">
+<body>
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#authors-summary" id="toc-authors-summary" class="nav-link active" data-scroll-target="#authors-summary">Authors’ Summary</a></li>
+  <li><a href="#table-of-contents" id="toc-table-of-contents" class="nav-link" data-scroll-target="#table-of-contents">Table of Contents</a></li>
+  <li><a href="#under-the-hood-of-random-forest" id="toc-under-the-hood-of-random-forest" class="nav-link" data-scroll-target="#under-the-hood-of-random-forest">Under the Hood of Random Forest</a>
+  <ul class="collapse">
+  <li><a href="#intuition-behind-decision-trees" id="toc-intuition-behind-decision-trees" class="nav-link" data-scroll-target="#intuition-behind-decision-trees">Intuition Behind Decision Trees</a></li>
+  <li><a href="#overview-of-random-forest-algorithm" id="toc-overview-of-random-forest-algorithm" class="nav-link" data-scroll-target="#overview-of-random-forest-algorithm">Overview of Random Forest Algorithm</a></li>
+  </ul></li>
+  <li><a href="#classification-case-titanic-survival-prediction" id="toc-classification-case-titanic-survival-prediction" class="nav-link" data-scroll-target="#classification-case-titanic-survival-prediction">Classification Case: Titanic Survival Prediction</a>
+  <ul class="collapse">
+  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link" data-scroll-target="#prerequisites">Prerequisites</a></li>
+  <li><a href="#partition" id="toc-partition" class="nav-link" data-scroll-target="#partition">Partition</a></li>
+  <li><a href="#k-folds-cross-validation" id="toc-k-folds-cross-validation" class="nav-link" data-scroll-target="#k-folds-cross-validation">K-Folds Cross Validation</a></li>
+  <li><a href="#data-preparation" id="toc-data-preparation" class="nav-link" data-scroll-target="#data-preparation">Data Preparation</a></li>
+  <li><a href="#model-fitting" id="toc-model-fitting" class="nav-link" data-scroll-target="#model-fitting">Model Fitting</a></li>
+  <li><a href="#prediction" id="toc-prediction" class="nav-link" data-scroll-target="#prediction">Prediction</a></li>
+  <li><a href="#accuracy-measures" id="toc-accuracy-measures" class="nav-link" data-scroll-target="#accuracy-measures">Accuracy Measures</a></li>
+  <li><a href="#variable-importance-scores" id="toc-variable-importance-scores" class="nav-link" data-scroll-target="#variable-importance-scores">Variable Importance Scores</a></li>
+  </ul></li>
+  <li><a href="#regression-case-miles-per-gallon-prediction" id="toc-regression-case-miles-per-gallon-prediction" class="nav-link" data-scroll-target="#regression-case-miles-per-gallon-prediction">Regression Case: Miles Per Gallon Prediction</a>
+  <ul class="collapse">
+  <li><a href="#prerequisites-1" id="toc-prerequisites-1" class="nav-link" data-scroll-target="#prerequisites-1">Prerequisites</a></li>
+  <li><a href="#partition-1" id="toc-partition-1" class="nav-link" data-scroll-target="#partition-1">Partition</a></li>
+  <li><a href="#k-folds-cross-validation-1" id="toc-k-folds-cross-validation-1" class="nav-link" data-scroll-target="#k-folds-cross-validation-1">K-Folds Cross Validation</a></li>
+  <li><a href="#data-preparation-1" id="toc-data-preparation-1" class="nav-link" data-scroll-target="#data-preparation-1">Data Preparation</a></li>
+  <li><a href="#model-fitting-1" id="toc-model-fitting-1" class="nav-link" data-scroll-target="#model-fitting-1">Model Fitting</a></li>
+  <li><a href="#prediction-1" id="toc-prediction-1" class="nav-link" data-scroll-target="#prediction-1">Prediction</a></li>
+  <li><a href="#accuracy-measures-1" id="toc-accuracy-measures-1" class="nav-link" data-scroll-target="#accuracy-measures-1">Accuracy Measures</a></li>
+  <li><a href="#variable-importance" id="toc-variable-importance" class="nav-link" data-scroll-target="#variable-importance">Variable Importance</a></li>
+  </ul></li>
+  <li><a href="#random-forest-checklist" id="toc-random-forest-checklist" class="nav-link" data-scroll-target="#random-forest-checklist">Random Forest Checklist</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+</div>
 <main class="content" id="quarto-document-content">
 
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Random Forest Vignette</h1>
+</div>
 
 
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+
+<style>
+/* Define your new color palette */
+:root {
+  --primary-color: #3498db;    /* Vibrant Blue */
+  --secondary-color: #e74c3c;  /* Complementary Coral */
+  --background-color: #d6eaf8; /* Light Sky Blue */
+  --toc-background-color: #ebf5fb; /* Pale Blue */
+  --toc-border-color: #48c9b0; /* Soft Teal */
+}
+
+/* Style the body with the new background color */
+body {
+  background-color: var(--background-color);
+  color: #2c3e50; /* Dark gray-blue for text */
+}
+
+/* Style headers with the new primary color */
+h1, h2, h3 {
+  color: var(--primary-color);
+}
+
+/* Style the Table of Contents with new colors */
+div.toc {
+  background-color: var(--toc-background-color);
+  border-left: 4px solid var(--toc-border-color);
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+/* Style TOC headings with the new secondary color */
+div.toc h2 {
+  color: var(--secondary-color);
+}
+
+/* Style TOC links with the new primary color */
+div.toc a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+/* Hover effect for TOC links with the new secondary color */
+div.toc a:hover {
+  color: var(--secondary-color);
+  text-decoration: underline;
+}
+</style>
+<section id="authors-summary" class="level2">
+<h2 class="anchored" data-anchor-id="authors-summary">Authors’ Summary</h2>
+<p>This document is a vignette of random forest algorithms. We talk about the inner workings of random forest models, going as deep as describing the process of how decision trees decide node splits. We also demonstrate how to implement a random forest model in code and interpret its results for both the classification and regression cases.</p>
+<p>For students only interested in learning how to implement the code for random forest models, we recommend going straight to sections “Classification Case: Titanic Survival Prediction” and “Regression Case: Miles Per Gallon Prediction”. The section named “Under the Hood of Random Forest” is for students wanting to understand how the random forest algorithm works.</p>
+</section>
 <section id="table-of-contents" class="level2">
 <h2 class="anchored" data-anchor-id="table-of-contents">Table of Contents</h2>
 <ol type="1">
 <li><p>Under the Hood of Random Forest</p></li>
 <li><p>Classification Case: Titanic Survival Prediction</p></li>
 <li><p>Regression Case: Miles Per Gallon Prediction</p></li>
+<li><p>Random Forest Checklist</p></li>
+<li><p>References</p></li>
 </ol>
 </section>
 <section id="under-the-hood-of-random-forest" class="level2">
@@ -130,12 +237,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Note that we will explain decision trees in the context of solving a classification problem. A decision tree is a rule-based algorithm that systematically divides the predictor space, i.e., the target variable, using a set of rules to split the data points into homogeneous groups. Inner and root nodes represent when a rule is applied to split a predictor (considering that a decision tree follows a binary tree structure). One branch of a node contains the data points that satisfy the node’s rule, while the other contains the data points that break the rule.</p>
 <p>The goal is to split the target variable into increasingly homogeneous subgroups compared to its parent node. This process continues until no more rules can be applied or no remaining data points. The nodes at the bottom of the decision tree after the splitting process is over are called terminal or leaf nodes.</p>
 <p>The decision tree’s algorithm attempts to split the data into leaf nodes containing only a single class. These nodes are referred to as pure nodes. Not all the leaf nodes of a decision tree will be completely pure, i.e., some leaf nodes will contain a mix of multiple classes. In this case, a classification is made based on a node’s most common data point.</p>
-<p><strong>How does a decision tree decide how to split?</strong></p>
-<p>Let us explain this using an example. Imagine we want to predict a student’s exam result based on whether they are taking online classes, student background, and working status. To establish the root node, the decision tree algorithm will iterate through splitting each predictor to determine which split results in the most homogenous or pure nodes, and it will evaluate this using some statistical criterion. After the root node is established, subsequent splits in the tree consider only the predictors that haven’t been used for splitting in the current branch.</p>
-<p>Variable selection criterion is done using one of the following approaches:</p>
+<section id="how-does-a-decision-tree-decide-how-to-split" class="level4">
+<h4 class="anchored" data-anchor-id="how-does-a-decision-tree-decide-how-to-split">How does a decision tree decide how to split?</h4>
+<p>Let us explain this using an example. Imagine we want to predict a student’s exam result based on whether they are taking online classes, student background, and working status. To establish the first split, the decision tree algorithm will iterate through splitting each predictor to determine which split results in the most homogenous or pure nodes, and it will evaluate this using some statistical criterion. Variable selection criterion is done using one of the following approaches:</p>
 <p>• Entropy and information gain</p>
 <p>• Gini index</p>
-<p>It is left to the reader to look further into entropy and information gain, but for the purpose of this vignette, we will only explain the use of the Gini index.</p>
+<p>It is left to the reader to look further into entropy and information gain, but for the purpose of this vignette, we will only explain the use of the Gini index. The following article will take us to a reference for entropy and information gain, and it is available at: https://towardsdatascience.com/entropy-and-information-gain-b738ca8abd2a.</p>
 <p>Let the following be our toy data set for this example.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -152,6 +259,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <p>Keep in mind that <span class="math inline">\(j\)</span> denotes the number of classes, and <span class="math inline">\(p_j\)</span> signifies the proportion of data points belonging to class <span class="math inline">\(j\)</span> within the current node.</p>
 <p>Splitting by student background, we get three possible child nodes: maths, CS, and others.</p>
+<p>While 2 people in “Maths” pass, there are 5 that fail. While 4 people in “CS” pass, there are 0 that fail. While 2 people in “Other” pass, there are 2 that fail.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/bkgrd-tree-ex.jpg" class="img-fluid figure-img"></p>
@@ -196,12 +304,24 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 \]</span></p>
 <p>Since the Gini index is lowest for ‘Student Background,’ this predictor becomes the basis for splitting the root node. This concludes the logic behind how the split conditions for decision nodes are created.</p>
 </section>
+</section>
 <section id="overview-of-random-forest-algorithm" class="level3">
 <h3 class="anchored" data-anchor-id="overview-of-random-forest-algorithm">Overview of Random Forest Algorithm</h3>
 <p>The random forest algorithm follows these steps:</p>
-<p>1. Take the original dataset and create <span class="math inline">\(N\)</span> bootstrapped samples of size <span class="math inline">\(n\)</span> such that <span class="math inline">\(n\)</span> is smaller than the size of the original dataset.</p>
+<p>1. Take the original dataset and create <span class="math inline">\(N\)</span> bootstrapped samples of size <span class="math inline">\(n\)</span> such that <span class="math inline">\(n\)</span> is smaller than the size of the original data set.</p>
 <p>2. Train a decision tree for each of the bootstrapped samples, but split on a different subset of the predictors for each tree and determine the best split using impurity measures such as Gini impurity or Entropy.</p>
 <p>3. Create a prediction by aggregating the results of all the trees. In the classification case, take the majority vote across all trees, and in the regression case, take the average across all trees.</p>
+<section id="bias-variance-of-random-forest-algorithms" class="level4">
+<h4 class="anchored" data-anchor-id="bias-variance-of-random-forest-algorithms">Bias-Variance of Random Forest Algorithms</h4>
+<p>A model with low-bias performs well in finding the true relationships between a data set’s predictors and target variables, and a model with low-variance will do well in generalizing to different input data sets.</p>
+<p>Note that bias-variance trade off is an important concept in machine learning. High-bias is error which is most common in models that under fit, and high-variance is error which commonly comes from models which over fit. Our goal is to find the best balance between the two, a model that is not too simple or too complex.</p>
+<p>Decision trees tend to over fit to the data, and as a result they have low-bias and high-variance. Note that the decision trees of a random forest algorithm are uncorrelated with one another (since they are each trained on a different subset of predictors), so by aggregating their predictions, we are able to average out this over fitting and reduce variance.</p>
+<p>Note that increasing the number of trees in a random forest model retains a low-bias and decreases variance, but it also increases computational costs and run-time.</p>
+</section>
+<section id="random-forest-assumptions" class="level4">
+<h4 class="anchored" data-anchor-id="random-forest-assumptions">Random Forest Assumptions</h4>
+<p>One of the main assumptions of random forests is that the decision trees of the random forest ensemble are uncorrelated, i.e., that the features of the data set are independent and that feature selection for creating splits is random. If decision trees were correlated, then the aggregation of these trees will not reduce variance.</p>
+</section>
 </section>
 </section>
 <section id="classification-case-titanic-survival-prediction" class="level2">
@@ -252,7 +372,7 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 </section>
 <section id="k-folds-cross-validation" class="level3">
 <h3 class="anchored" data-anchor-id="k-folds-cross-validation">K-Folds Cross Validation</h3>
-<p>K-fold cross validation allows us to train and evaluate the performance of our model on <span class="math inline">\(k\)</span> different partitions of the training set, reducing the risk of over fitting. The <code>vfold_cv(train_set, v = 5, strata = "survived")</code> function will create 5 training folds of our training set while stratifying by the <code>survived</code> variable. It is left to the reader to look further into k-fold cross validation.</p>
+<p>K-fold cross validation allows us to train and evaluate the performance of our model on <span class="math inline">\(k\)</span> different partitions of the training set, reducing the risk of over fitting. The <code>vfold_cv(train_set, v = 5, strata = "survived")</code> function will create 5 training folds of our training set while stratifying by the <code>survived</code> variable. It is left to the reader to look further into k-fold cross validation. Further information can be is available at: https://machinelearningmastery.com/k-fold-cross-validation/.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>train_folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(train_set, <span class="at">v =</span> <span class="dv">5</span>, <span class="at">strata =</span> <span class="st">"survived"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -334,7 +454,7 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 </section>
 <section id="prediction" class="level3">
 <h3 class="anchored" data-anchor-id="prediction">Prediction</h3>
-<p>To make predictions using the trained random forest model (<code>rf_final_fit</code>), use the <code>predict()</code> function and provide it with new input data (<code>new_data</code>). It is required that the structure of the input data aligns with the predictor variables used during the model training process.</p>
+<p>To make predictions using the trained random forest model (<code>rf_final_fit</code>), use the <code>predict()</code> function and provide it with new input data (<code>new_data</code>). It is required that the structure of the input data aligns with the predictor variables used during the model training process. Here, we will generate predictions from all the input points in our test set.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>new_data <span class="ot">&lt;-</span> test_set[<span class="fu">c</span>(<span class="st">"pclass"</span>, <span class="st">"sex"</span>, <span class="st">"age"</span>, <span class="st">"sib_sp"</span>, <span class="st">"parch"</span>, <span class="st">"fare"</span>)]</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(rf_final_fit, new_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -420,7 +540,7 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 </section>
 <section id="regression-case-miles-per-gallon-prediction" class="level2">
 <h2 class="anchored" data-anchor-id="regression-case-miles-per-gallon-prediction">Regression Case: Miles Per Gallon Prediction</h2>
-<p>Please be aware that numerous steps in our regression case of random forests align with those from our classification example. Consequently, we will provide a more concise overview of the regression case when in steps that align in both examples.</p>
+<p>Please be aware that numerous steps in our regression case of random forests align with those from our classification case. Consequently, we will provide a more concise overview of the regression case when in steps that align in both examples.</p>
 <section id="prerequisites-1" class="level3">
 <h3 class="anchored" data-anchor-id="prerequisites-1">Prerequisites</h3>
 <p>Copy and paste the following block of code into a new script to load the required packages and data used for this example. If an error appears, then you likely don’t have one of the libraries installed (note that some of these packages align with those used in the classification case). We will also set the type of the <code>origin</code> variable to factor.</p>
@@ -474,7 +594,7 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 </section>
 <section id="model-fitting-1" class="level3">
 <h3 class="anchored" data-anchor-id="model-fitting-1">Model Fitting</h3>
-<p>We will initialize a new random forest model and specify the hyper parameters using <code>rand_forest(mtry = tune(), trees = tune(), min_n = tune())</code>. The hyper parameters of our model are <code>mtry</code>, <code>trees</code>, and <code>min_n</code>. Using <code>set_engine("ranger", importance = "impurity")</code>, we will use the random forest implementation from the “ranger” package and set our importance method as “impurity”. The <code>set_mode("regression")</code> function specifies the random forest model as a regression model.</p>
+<p>We will initialize a new random forest model and specify the hyper parameters using the <code>rand_forest(mtry = tune(), trees = tune(), min_n = tune())</code> function. The hyper parameters of our model are <code>mtry</code>, <code>trees</code>, and <code>min_n</code>. Using <code>set_engine("ranger", importance = "impurity")</code>, we will use the random forest implementation from the “ranger” package and set our importance method as “impurity”. The <code>set_mode("regression")</code> function specifies the random forest model as a regression model.</p>
 <p>Refer to the “Model Fitting” section of the classification case for an explanation of the hyper parameters and importance method.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>rf_auto <span class="ot">&lt;-</span> <span class="fu">rand_forest</span>(<span class="at">mtry =</span> <span class="fu">tune</span>(), <span class="co">#num of preds randomly sampled at each split</span></span>
@@ -483,13 +603,13 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"ranger"</span>, <span class="at">importance =</span> <span class="st">"impurity"</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Next, we define a workflow (<code>rf_auto_wf</code>) to combine our regression model (<code>rf_auto</code>) and our data preparation recipe (<code>recipe_auto</code>).</p>
+<p>Next, we define a model building workflow (<code>rf_auto_wf</code>) to combine our regression model (<code>rf_auto</code>) and our data preparation recipe (<code>recipe_auto</code>).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>rf_auto_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(rf_auto) <span class="sc">%&gt;%</span> </span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(recipe_auto)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The next step is to create our tuning grid and tune the model to find the most optimal configuration of our hyper parameters.</p>
+<p>The next step is to create our tuning grid (with <code>grid_regular()</code>) and tune the model (with <code>tune_grid()</code>) to find the most optimal configuration of our hyper parameters.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>rf_grid_auto <span class="ot">&lt;-</span> <span class="fu">grid_regular</span>(<span class="fu">mtry</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">8</span>)), </span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">trees</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">200</span>, <span class="dv">600</span>)),</span>
@@ -523,8 +643,8 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 5     8   500    12 rmse    standard    2.92     5   0.178 Preprocessor1_Model0…</code></pre>
 </div>
 </div>
-<p>The model seems to have better performance with a smaller minimum node size, the number of trees doesn’t appear to affect the performance and the performance of the model plateaus after 4 predictors. The best performing model had 8 randomly sampled predictors, 300 trees and a minimum of 10 data points in a node. It had a mean RMSE of 2.906 (we will explain what RMSE means in the “Accuracy Measures” section).</p>
-<p>Lastly, we can extract the best configuration of hyper parameters with <code>select_best(tune_auto)</code>, finalize our workflow with <code>finalize_workflow(rf_auto_wf, best_rf_auto)</code>, and fit our model with <code>fit(final_auto_model, auto_train)</code>.</p>
+<p>The model seems to have better performance with a smaller minimum node size, the number of trees doesn’t appear to affect the performance and the performance of the model plateaus after 4 predictors. The best performing model had 8 randomly sampled predictors, 300 trees, a minimum of 10 data points in a node, and a mean RMSE of 2.906 (we will explain what RMSE means in the “Accuracy Measures” section).</p>
+<p>Lastly, we can extract the best configuration of hyper parameters with the <code>select_best(tune_auto)</code> function, create a finalized version of the random forest workflow with <code>finalize_workflow(rf_auto_wf, best_rf_auto)</code>, and fit our model using the entire training set with <code>fit(final_auto_model, auto_train)</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co">#save best RF</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>best_rf_auto <span class="ot">&lt;-</span><span class="fu">select_best</span>(tune_auto)</span>
@@ -572,7 +692,7 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 1 rmse    standard        2.00</code></pre>
 </div>
 </div>
-<p>An RMSE of 2.002811 indicates that, on average, the model’s predictions are 2.002811 units away from their observed values. The model’s fit based off the RMSE depends on the specifics of the data and the required precision of the problem, but with a range of 31.1 (in <code>mpg</code>), an RMSE of 2.002811 is considered relatively low. Therefore, our model has decent predictive accuracy.</p>
+<p>An RMSE of 2.002811 indicates that, on average, the model’s predictions are 2.002811 units away from their observed values. The model’s goodness of fit based off the RMSE depends on the specifics of the data and the required precision of the problem, but with a range of 31.1 (in <code>mpg</code>), an RMSE of 2.002811 is considered relatively low. Therefore, our model has good predictive accuracy.</p>
 </section>
 <section id="variable-importance" class="level3">
 <h3 class="anchored" data-anchor-id="variable-importance">Variable Importance</h3>
@@ -586,13 +706,33 @@ Gini_{onlinecourse} = \frac{7}{15}(.4898) + \frac{8}{15}(.5) = .49524
 <p><img src="vignette_scratch_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Displacement and weight have the highest importance scores, indicating that they are strong predictors within the model. This implies that engine size and a vehicle’s weight influence a vehicle’s fuel efficiency the most. Note that number of cylinders (which is related to an engine’s size) and year (which may reflect advances in technology) are also significant contributers.</p>
+<p>Displacement and weight have the highest importance scores, indicating that they are strong predictors within the model. This implies that engine size and a vehicle’s weight influence a vehicle’s fuel efficiency the most. Note that number of cylinders (which is related to an engine’s size) and year (which may reflect advances in technology) are also significant contributors.</p>
 </section>
+</section>
+<section id="random-forest-checklist" class="level2">
+<h2 class="anchored" data-anchor-id="random-forest-checklist">Random Forest Checklist</h2>
+<ol type="1">
+<li><p>Load necessary packages and data</p></li>
+<li><p>Partition the data into testing and training sets</p></li>
+<li><p>Fit the random forest model</p>
+<ul>
+<li><p>Initialize model with specified hyper parameters</p></li>
+<li><p>Define a model building workflow</p></li>
+<li><p>Tune and extract the best hyper parameters</p></li>
+<li><p>Finalize model workflow</p></li>
+<li><p>Fit model to entire training set</p></li>
+</ul></li>
+<li><p>Develop predictions</p></li>
+<li><p>Evaluate accuracy measures on the test set</p></li>
+<li><p>Interpret the importance scores of predictors from the model</p></li>
+</ol>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">References</h2>
 <p>Shailey Dash. (2022). “Decision Trees Explained - Entropy, Information Gain, Gini Index, CCP Pruning.” Towards Data Science. Available at: https://towardsdatascience.com/decision-trees-explained-entropy-information-gain-gini-index-ccp-pruning-4d78070db36c. This article provides an overview of decision trees, focusing on topics like Entropy, Information Gain, Gini Index, and CCP Pruning.</p>
 <p>Carolina Bento. (2021). “Random Forests Algorithm Explained with a Real-Life Example and Some Python Code.” Towards Data Science. Available at: https://towardsdatascience.com/random-forests-algorithm-explained-with-a-real-life-example-and-some-python-code-affbfa5a942c. This article explains the Random Forests algorithm, and includes a practical example along with Python code to demonstrate its application.</p>
+<p>Steven Loaiza. (2020). “Entropy and Information Gain.” Towards Data Science. Available at: https://towardsdatascience.com/entropy-and-information-gain-b738ca8abd2a. This source discusses concepts such as Entropy and Information gain.</p>
+<p>Jason Brownlee. (2023). “A Gentle Introduction to k-fold Cross-Validation.” Machine Learning Mastery. Available at: https://machinelearningmastery.com/k-fold-cross-validation. This article provides a comprehensive introduction to k-fold cross validation.</p>
 </section>
 
 </main>

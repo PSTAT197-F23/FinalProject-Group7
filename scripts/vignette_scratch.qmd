@@ -1,3 +1,67 @@
+---
+title: "Random Forest Vignette"
+format: 
+  html:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+---
+
+```{=html}
+<style>
+/* Define your new color palette */
+:root {
+  --primary-color: #3498db;    /* Vibrant Blue */
+  --secondary-color: #e74c3c;  /* Complementary Coral */
+  --background-color: #d6eaf8; /* Light Sky Blue */
+  --toc-background-color: #ebf5fb; /* Pale Blue */
+  --toc-border-color: #48c9b0; /* Soft Teal */
+}
+
+/* Style the body with the new background color */
+body {
+  background-color: var(--background-color);
+  color: #2c3e50; /* Dark gray-blue for text */
+}
+
+/* Style headers with the new primary color */
+h1, h2, h3 {
+  color: var(--primary-color);
+}
+
+/* Style the Table of Contents with new colors */
+div.toc {
+  background-color: var(--toc-background-color);
+  border-left: 4px solid var(--toc-border-color);
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+/* Style TOC headings with the new secondary color */
+div.toc h2 {
+  color: var(--secondary-color);
+}
+
+/* Style TOC links with the new primary color */
+div.toc a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+/* Hover effect for TOC links with the new secondary color */
+div.toc a:hover {
+  color: var(--secondary-color);
+  text-decoration: underline;
+}
+</style>
+```
+## Authors' Summary
+
+This document is a vignette of random forest algorithms. We talk about the inner workings of random forest models, going as deep as describing the process of how decision trees decide node splits. We also demonstrate how to implement a random forest model in code and interpret its results for both the classification and regression cases.
+
+For students only interested in learning how to implement the code for random forest models, we recommend going straight to sections "Classification Case: Titanic Survival Prediction" and "Regression Case: Miles Per Gallon Prediction". The section named "Under the Hood of Random Forest" is for students wanting to understand how the random forest algorithm works.
+
 ## Table of Contents
 
 1.  Under the Hood of Random Forest
@@ -6,7 +70,9 @@
 
 3.  Regression Case: Miles Per Gallon Prediction
 
-4.  References
+4.  Random Forest Checklist
+
+5.  References
 
 ## Under the Hood of Random Forest
 
@@ -26,17 +92,15 @@ The goal is to split the target variable into increasingly homogeneous subgroups
 
 The decision tree's algorithm attempts to split the data into leaf nodes containing only a single class. These nodes are referred to as pure nodes. Not all the leaf nodes of a decision tree will be completely pure, i.e., some leaf nodes will contain a mix of multiple classes. In this case, a classification is made based on a node's most common data point.
 
-**How does a decision tree decide how to split?**
+#### How does a decision tree decide how to split?
 
-Let us explain this using an example. Imagine we want to predict a student's exam result based on whether they are taking online classes, student background, and working status. To establish the root node, the decision tree algorithm will iterate through splitting each predictor to determine which split results in the most homogenous or pure nodes, and it will evaluate this using some statistical criterion. After the root node is established, subsequent splits in the tree consider only the predictors that haven't been used for splitting in the current branch.
-
-Variable selection criterion is done using one of the following approaches:
+Let us explain this using an example. Imagine we want to predict a student's exam result based on whether they are taking online classes, student background, and working status. To establish the first split, the decision tree algorithm will iterate through splitting each predictor to determine which split results in the most homogenous or pure nodes, and it will evaluate this using some statistical criterion. Variable selection criterion is done using one of the following approaches:
 
 • Entropy and information gain
 
 • Gini index
 
-It is left to the reader to look further into entropy and information gain, but for the purpose of this vignette, we will only explain the use of the Gini index.
+It is left to the reader to look further into entropy and information gain, but for the purpose of this vignette, we will only explain the use of the Gini index. The following article will take us to a reference for entropy and information gain, and it is available at: https://towardsdatascience.com/entropy-and-information-gain-b738ca8abd2a.
 
 Let the following be our toy data set for this example.
 
@@ -49,6 +113,8 @@ This is the formula for calculating Gini index:
 Keep in mind that $j$ denotes the number of classes, and $p_j$ signifies the proportion of data points belonging to class $j$ within the current node.
 
 Splitting by student background, we get three possible child nodes: maths, CS, and others.
+
+While 2 people in "Maths" pass, there are 5 that fail. While 4 people in "CS" pass, there are 0 that fail. While 2 people in "Other" pass, there are 2 that fail.
 
 ![Student Background Split Condition](images/bkgrd-tree-ex.jpg)
 
@@ -110,11 +176,25 @@ Since the Gini index is lowest for 'Student Background,' this predictor becomes 
 
 The random forest algorithm follows these steps:
 
-1\. Take the original dataset and create $N$ bootstrapped samples of size $n$ such that $n$ is smaller than the size of the original dataset.
+1\. Take the original dataset and create $N$ bootstrapped samples of size $n$ such that $n$ is smaller than the size of the original data set.
 
 2\. Train a decision tree for each of the bootstrapped samples, but split on a different subset of the predictors for each tree and determine the best split using impurity measures such as Gini impurity or Entropy.
 
 3\. Create a prediction by aggregating the results of all the trees. In the classification case, take the majority vote across all trees, and in the regression case, take the average across all trees.
+
+#### Bias-Variance of Random Forest Algorithms
+
+A model with low-bias performs well in finding the true relationships between a data set's predictors and target variables, and a model with low-variance will do well in generalizing to different input data sets.
+
+Note that bias-variance trade off is an important concept in machine learning. High-bias is error which is most common in models that under fit, and high-variance is error which commonly comes from models which over fit. Our goal is to find the best balance between the two, a model that is not too simple or too complex.
+
+Decision trees tend to over fit to the data, and as a result they have low-bias and high-variance. Note that the decision trees of a random forest algorithm are uncorrelated with one another (since they are each trained on a different subset of predictors), so by aggregating their predictions, we are able to average out this over fitting and reduce variance.
+
+Note that increasing the number of trees in a random forest model retains a low-bias and decreases variance, but it also increases computational costs and run-time.
+
+#### Random Forest Assumptions
+
+One of the main assumptions of random forests is that the decision trees of the random forest ensemble are uncorrelated, i.e., that the features of the data set are independent and that feature selection for creating splits is random. If decision trees were correlated, then the aggregation of these trees will not reduce variance.
 
 ## Classification Case: Titanic Survival Prediction
 
@@ -175,7 +255,7 @@ train_set %>%
 
 ### K-Folds Cross Validation
 
-K-fold cross validation allows us to train and evaluate the performance of our model on $k$ different partitions of the training set, reducing the risk of over fitting. The `vfold_cv(train_set, v = 5, strata = "survived")` function will create 5 training folds of our training set while stratifying by the `survived` variable. It is left to the reader to look further into k-fold cross validation.
+K-fold cross validation allows us to train and evaluate the performance of our model on $k$ different partitions of the training set, reducing the risk of over fitting. The `vfold_cv(train_set, v = 5, strata = "survived")` function will create 5 training folds of our training set while stratifying by the `survived` variable. It is left to the reader to look further into k-fold cross validation. Further information can be is available at: https://machinelearningmastery.com/k-fold-cross-validation/.
 
 ```{r}
 train_folds <- vfold_cv(train_set, v = 5, strata = "survived")
@@ -277,7 +357,7 @@ rf_final_fit <- fit(rf_final, data = train_set)
 
 ### Prediction
 
-To make predictions using the trained random forest model (`rf_final_fit`), use the `predict()` function and provide it with new input data (`new_data`). It is required that the structure of the input data aligns with the predictor variables used during the model training process.
+To make predictions using the trained random forest model (`rf_final_fit`), use the `predict()` function and provide it with new input data (`new_data`). It is required that the structure of the input data aligns with the predictor variables used during the model training process. Here, we will generate predictions from all the input points in our test set.
 
 ```{r}
 new_data <- test_set[c("pclass", "sex", "age", "sib_sp", "parch", "fare")]
@@ -332,7 +412,7 @@ The chart demonstrates that the single `sex_male` predictor and the combination 
 
 ## Regression Case: Miles Per Gallon Prediction
 
-Please be aware that numerous steps in our regression case of random forests align with those from our classification example. Consequently, we will provide a more concise overview of the regression case when in steps that align in both examples.
+Please be aware that numerous steps in our regression case of random forests align with those from our classification case. Consequently, we will provide a more concise overview of the regression case when in steps that align in both examples.
 
 ### Prerequisites
 
@@ -393,7 +473,7 @@ recipe_auto <- recipe(mpg ~., data=auto_train) %>%
 
 ### Model Fitting
 
-We will initialize a new random forest model and specify the hyper parameters using `rand_forest(mtry = tune(), trees = tune(), min_n = tune())`. The hyper parameters of our model are `mtry`, `trees`, and `min_n`. Using `set_engine("ranger", importance = "impurity")`, we will use the random forest implementation from the "ranger" package and set our importance method as "impurity". The `set_mode("regression")` function specifies the random forest model as a regression model.
+We will initialize a new random forest model and specify the hyper parameters using the `rand_forest(mtry = tune(), trees = tune(), min_n = tune())` function. The hyper parameters of our model are `mtry`, `trees`, and `min_n`. Using `set_engine("ranger", importance = "impurity")`, we will use the random forest implementation from the "ranger" package and set our importance method as "impurity". The `set_mode("regression")` function specifies the random forest model as a regression model.
 
 Refer to the "Model Fitting" section of the classification case for an explanation of the hyper parameters and importance method.
 
@@ -405,7 +485,7 @@ rf_auto <- rand_forest(mtry = tune(), #num of preds randomly sampled at each spl
   set_mode("regression")
 ```
 
-Next, we define a workflow (`rf_auto_wf`) to combine our regression model (`rf_auto`) and our data preparation recipe (`recipe_auto`).
+Next, we define a model building workflow (`rf_auto_wf`) to combine our regression model (`rf_auto`) and our data preparation recipe (`recipe_auto`).
 
 ```{r}
 rf_auto_wf <- workflow() %>% 
@@ -413,7 +493,7 @@ rf_auto_wf <- workflow() %>%
   add_recipe(recipe_auto)
 ```
 
-The next step is to create our tuning grid and tune the model to find the most optimal configuration of our hyper parameters.
+The next step is to create our tuning grid (with `grid_regular()`) and tune the model (with `tune_grid()`) to find the most optimal configuration of our hyper parameters.
 
 ```{r}
 rf_grid_auto <- grid_regular(mtry(range = c(1, 8)), 
@@ -439,9 +519,9 @@ autoplot(tune_auto) + theme_minimal()
 show_best(tune_auto, n=5)
 ```
 
-The model seems to have better performance with a smaller minimum node size, the number of trees doesn't appear to affect the performance and the performance of the model plateaus after 4 predictors. The best performing model had 8 randomly sampled predictors, 300 trees and a minimum of 10 data points in a node. It had a mean RMSE of 2.906 (we will explain what RMSE means in the "Accuracy Measures" section).
+The model seems to have better performance with a smaller minimum node size, the number of trees doesn't appear to affect the performance and the performance of the model plateaus after 4 predictors. The best performing model had 8 randomly sampled predictors, 300 trees, a minimum of 10 data points in a node, and a mean RMSE of 2.906 (we will explain what RMSE means in the "Accuracy Measures" section).
 
-Lastly, we can extract the best configuration of hyper parameters with `select_best(tune_auto)`, finalize our workflow with `finalize_workflow(rf_auto_wf, best_rf_auto)`, and fit our model with `fit(final_auto_model, auto_train)`.
+Lastly, we can extract the best configuration of hyper parameters with the `select_best(tune_auto)` function, create a finalized version of the random forest workflow with `finalize_workflow(rf_auto_wf, best_rf_auto)`, and fit our model using the entire training set with `fit(final_auto_model, auto_train)`.
 
 ```{r, warning=FALSE}
 #save best RF
@@ -473,7 +553,7 @@ final_auto_model_test <- augment(final_auto_model, auto_test)
 rmse(final_auto_model_test, truth=mpg, .pred)
 ```
 
-An RMSE of 2.002811 indicates that, on average, the model's predictions are 2.002811 units away from their observed values. The model's fit based off the RMSE depends on the specifics of the data and the required precision of the problem, but with a range of 31.1 (in `mpg`), an RMSE of 2.002811 is considered relatively low. Therefore, our model has decent predictive accuracy.
+An RMSE of 2.002811 indicates that, on average, the model's predictions are 2.002811 units away from their observed values. The model's goodness of fit based off the RMSE depends on the specifics of the data and the required precision of the problem, but with a range of 31.1 (in `mpg`), an RMSE of 2.002811 is considered relatively low. Therefore, our model has good predictive accuracy.
 
 ### Variable Importance
 
@@ -487,11 +567,38 @@ final_auto_model %>% extract_fit_parsnip() %>%
   theme_minimal()
 ```
 
-Displacement and weight have the highest importance scores, indicating that they are strong predictors within the model. This implies that engine size and a vehicle's weight influence a vehicle's fuel efficiency the most. Note that number of cylinders (which is related to an engine's size) and year (which may reflect advances in technology) are also significant contributers.
+Displacement and weight have the highest importance scores, indicating that they are strong predictors within the model. This implies that engine size and a vehicle's weight influence a vehicle's fuel efficiency the most. Note that number of cylinders (which is related to an engine's size) and year (which may reflect advances in technology) are also significant contributors.
+
+## Random Forest Checklist
+
+1.  Load necessary packages and data
+
+2.  Partition the data into testing and training sets
+
+3.  Fit the random forest model
+
+    -   Initialize model with specified hyper parameters
+
+    -   Define a model building workflow
+
+    -   Tune and extract the best hyper parameters
+
+    -   Finalize model workflow
+
+    -   Fit model to entire training set
+
+4.  Develop predictions
+
+5.  Evaluate accuracy measures on the test set
+
+6.  Interpret the importance scores of predictors from the model
 
 ## References
 
-Shailey Dash. (2022). "Decision Trees Explained - Entropy, Information Gain, Gini Index, CCP Pruning." Towards Data Science. Available at: https://towardsdatascience.com/decision-trees-explained-entropy-information-gain-gini-index-ccp-pruning-4d78070db36c. This article provides an overview of decision trees, focusing on
-topics like Entropy, Information Gain, Gini Index, and CCP Pruning.
+Shailey Dash. (2022). "Decision Trees Explained - Entropy, Information Gain, Gini Index, CCP Pruning." Towards Data Science. Available at: https://towardsdatascience.com/decision-trees-explained-entropy-information-gain-gini-index-ccp-pruning-4d78070db36c. This article provides an overview of decision trees, focusing on topics like Entropy, Information Gain, Gini Index, and CCP Pruning.
 
 Carolina Bento. (2021). "Random Forests Algorithm Explained with a Real-Life Example and Some Python Code." Towards Data Science. Available at: https://towardsdatascience.com/random-forests-algorithm-explained-with-a-real-life-example-and-some-python-code-affbfa5a942c. This article explains the Random Forests algorithm, and includes a practical example along with Python code to demonstrate its application.
+
+Steven Loaiza. (2020). "Entropy and Information Gain." Towards Data Science. Available at: https://towardsdatascience.com/entropy-and-information-gain-b738ca8abd2a. This source discusses concepts such as Entropy and Information gain.
+
+Jason Brownlee. (2023). "A Gentle Introduction to k-fold Cross-Validation." Machine Learning Mastery. Available at: https://machinelearningmastery.com/k-fold-cross-validation. This article provides a comprehensive introduction to k-fold cross validation.
