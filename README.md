@@ -88,22 +88,6 @@ install.packages(ranger)
 install.packages(xgboost)
 install.packages(glmnet)
 
-library(ISLR)
-library(ISLR2)
-library(tidyverse)
-library(tidymodels)
-library(forcats)
-library(ggthemes)
-library(naniar)
-library(corrplot)
-library(corrr)
-library(klaR)
-library(ggplot2)
-library(vip)
-library(ranger)
-library(xgboost)
-library(glmnet)
-
 ```
 
 ## Examples
