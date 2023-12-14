@@ -505,7 +505,7 @@ final_auto_model_test <- augment(final_auto_model, auto_test)
 rmse(final_auto_model_test, truth=mpg, .pred)
 ```
 
-From the result above, the RMSE of 2.007913 indicates that, on average, the model's predictions are 2.007913 units away from their observed values. The model's goodness of fit based off the RMSE depends on the specifics of the data and the required precision of the problem, but with a range of 31.1 (in `mpg`), an RMSE of 2.007913 is considered relatively low. Therefore, our model has good predictive accuracy.
+From the result above, the RMSE of 2.007913 indicates that, on average, the model's predictions are 2.007913 units away from their observed values. The model's goodness of fit based off the RMSE depends on the specifics of the data and the required precision of the problem, but with a range of 26.1 (in `mpg`), an RMSE of 2.007913 is considered relatively low. Therefore, our model has good predictive accuracy.
 
 ### Variable Importance
 
