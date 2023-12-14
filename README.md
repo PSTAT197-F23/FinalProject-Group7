@@ -8,47 +8,47 @@ Vignette abstract: Our vignette topic is on random forests, specifically, buildi
 
 The auto dataset consists of 392 observations on the following nine features:
 
-- Miles per gallon
+-   Miles per gallon
 
-- Number of cylinders
+-   Number of cylinders
 
-- Engine displacement
+-   Engine displacement
 
-- Horsepower
+-   Horsepower
 
-- Vehicle weight
+-   Vehicle weight
 
-- Acceleration
+-   Acceleration
 
-- Year
+-   Year
 
-- Origin
+-   Origin
 
-- Name
+-   Name
 
 The titanic dataset consists of the following features for 891 passengers aboard the Titanic:
 
-- Passenger id
+-   Passenger id
 
-- Survived (yes/no)
+-   Survived (yes/no)
 
-- Passenger class
+-   Passenger class
 
-- Name
+-   Name
 
-- Sex
+-   Sex
 
-- Age
+-   Age
 
-- Sib_sp (number of siblings and spouses aboard)
+-   Sib_sp (number of siblings and spouses aboard)
 
-- Parch (number of parents and children aboard)
+-   Parch (number of parents and children aboard)
 
-- Ticket number
+-   Ticket number
 
-- Ticket fare
+-   Ticket fare
 
-- Cabin number
+-   Cabin number
 
 For the auto dataset, the correlation matrix shows that there are several negative and positive correlations between the variables, including a negative correlation between cylinders and mpg and a positive correlation between cylinders and displacement. The best performing random forest model had 8 randomly sampled predictors, 300 trees, and a minimum of 10 data points in a node. The variable importance plot shows that the top three most influential predictors were displacement, weight, and horsepower with an RMSE around 2.
 
@@ -58,12 +58,10 @@ Repository contents: The root directory is named Vignette-RandomForests, which c
 
 Reference list: To learn more about random forests, check out these references listed below.
 
-Shailey Dash. (2022). "Decision Trees Explained - Entropy, Information Gain, Gini Index, CCP Pruning." Towards Data Science. Available at: https://towardsdatascience.com/decision-trees-explained-entropy-information-gain-gini-index-ccp-pruning-4d78070db36c. This article provides an overview of decision trees, focusing on topics like Entropy, Information Gain, Gini Index, and CCP Pruning.
+Shailey Dash. (2022). "Decision Trees Explained - Entropy, Information Gain, Gini Index, CCP Pruning." Towards Data Science. Available at: <https://towardsdatascience.com/decision-trees-explained-entropy-information-gain-gini-index-ccp-pruning-4d78070db36c>. This article provides an overview of decision trees, focusing on topics like Entropy, Information Gain, Gini Index, and CCP Pruning.
 
-Carolina Bento. (2021). "Random Forests Algorithm Explained with a Real-Life Example and Some Python Code." Towards Data Science. Available at: https://towardsdatascience.com/random-forests-algorithm-explained-with-a-real-life-example-and-some-python-code-affbfa5a942c. This article explains the Random Forests algorithm, and includes a practical example along with Python code to demonstrate its application.
+Carolina Bento. (2021). "Random Forests Algorithm Explained with a Real-Life Example and Some Python Code." Towards Data Science. Available at: <https://towardsdatascience.com/random-forests-algorithm-explained-with-a-real-life-example-and-some-python-code-affbfa5a942c>. This article explains the Random Forests algorithm, and includes a practical example along with Python code to demonstrate its application.
 
-Steven Loaiza. (2020). "Entropy and Information Gain." Towards Data Science. Available at: https://towardsdatascience.com/entropy-and-information-gain-b738ca8abd2a. This source discusses concepts such as Entropy and Information gain.
+Steven Loaiza. (2020). "Entropy and Information Gain." Towards Data Science. Available at: <https://towardsdatascience.com/entropy-and-information-gain-b738ca8abd2a>. This source discusses concepts such as Entropy and Information gain.
 
-Jason Brownlee. (2023). "A Gentle Introduction to k-fold Cross-Validation." Machine Learning Mastery. Available at: https://machinelearningmastery.com/k-fold-cross-validation. This article provides a comprehensive introduction to k-fold cross validation.
-
-A typical README file would also contain instructions on use and instructions on contributing to the repository.
+Jason Brownlee. (2023). "A Gentle Introduction to k-fold Cross-Validation." Machine Learning Mastery. Available at: <https://machinelearningmastery.com/k-fold-cross-validation>. This article provides a comprehensive introduction to k-fold cross validation.
