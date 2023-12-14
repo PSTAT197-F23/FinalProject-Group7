@@ -45,6 +45,25 @@ auto_test <- testing(auto_split)
 auto_folds <- vfold_cv(auto_train, v = 5, strata = "mpg")
 ```
 
+```{r}
+# Decision tree for Auto dataset
+tree.auto = tree(mpg ~ . -name, data = auto_train)
+plot(tree.auto)
+text(tree.auto, pretty=0, col = "purple", cex = .5)
+title("Pruned tree of Size 3")
+```
+
+```{r}
+# 10-fold cross-validation to select the best size of a tree which minimizes the cross-validation estimate of the test error rate
+cv.auto <- cv.tree(tree.auto, K=10)
+best_size <- min(cv.auto$size[cv.auto$dev == min(cv.auto$dev)])
+best_size
+```
+
+```{r}
+pt.cv = prune.tree(tree.auto, best=best_size)
+draw.tree(pt.cv, nodeinfo=F)
+```
 
 ```{r}
 #making recipe
