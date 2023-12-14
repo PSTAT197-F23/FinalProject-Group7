@@ -346,7 +346,7 @@ augment(rf_final_fit, new_data = test_set) %>%
   accuracy(survived, .pred_class)
 ```
 
-As we can see, the ROC-AUC was 0.89.., indicating that our model is powerful for its overall ability to distinguish between those who survived and those who didn't survive the Titanic incident. However, the model's sensitivity, or true positive rate, was mediocre at best with a value of 0.708, indicating that the model was not very good at correctly identifying an actual survivor. That being said, the model's binary accuracy and specificity were both very good, so our model was good at correctly identifying whether or not a person did not survive, and in general, the vast majority of the model's predictions were correct.
+As we can see, the ROC-AUC was 0.901, indicating that our model is powerful for its overall ability to distinguish between those who survived and those who didn't survive the Titanic incident. However, the model's sensitivity, or true positive rate, was mediocre at best with a value of 0.689, indicating that the model was not very good at correctly identifying an actual survivor. That being said, the model's binary accuracy and specificity were both very good (0.866 and 0.976 respectively), so our model was good at correctly identifying whether or not a person did not survive, and in general, the vast majority of the model's predictions were correct.
 
 ### Variable Importance Scores
 
@@ -471,7 +471,7 @@ autoplot(tune_auto) + theme_minimal()
 show_best(tune_auto, n=5)
 ```
 
-The model seems to have better performance with a smaller minimum node size, the number of trees doesn't appear to affect the performance and the performance of the model plateaus after 4 predictors. The best performing model had 8 randomly sampled predictors, 300 trees, a minimum of 10 data points in a node, and a mean RMSE of 2.906 (we will explain what RMSE means in the "Accuracy Measures" section).
+The model seems to have better performance with a smaller minimum node size, the number of trees doesn't appear to affect the performance and the performance of the model plateaus after 4 predictors. The best performing model had 8 randomly sampled predictors, 300 trees, a minimum of 10 data points in a node, and a mean RMSE of 2.905 (we will explain what RMSE means in the "Accuracy Measures" section).
 
 Lastly, we can extract the best configuration of hyper parameters with the `select_best(tune_auto)` function, create a finalized version of the random forest workflow with `finalize_workflow(rf_auto_wf, best_rf_auto)`, and fit our model using the entire training set with `fit(final_auto_model, auto_train)`.
 
@@ -505,7 +505,7 @@ final_auto_model_test <- augment(final_auto_model, auto_test)
 rmse(final_auto_model_test, truth=mpg, .pred)
 ```
 
-An RMSE of 2.002811 indicates that, on average, the model's predictions are 2.002811 units away from their observed values. The model's goodness of fit based off the RMSE depends on the specifics of the data and the required precision of the problem, but with a range of 31.1 (in `mpg`), an RMSE of 2.002811 is considered relatively low. Therefore, our model has good predictive accuracy.
+From the result above, the RMSE of 2.007913 indicates that, on average, the model's predictions are 2.007913 units away from their observed values. The model's goodness of fit based off the RMSE depends on the specifics of the data and the required precision of the problem, but with a range of 31.1 (in `mpg`), an RMSE of 2.007913 is considered relatively low. Therefore, our model has good predictive accuracy.
 
 ### Variable Importance
 
